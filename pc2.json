@@ -1,0 +1,39 @@
+{
+    "name": "FNS Package",
+    "version": "0.0.1",
+    "description": "This is an FNS Package",
+    "deployment_resources_size": "small",
+    "database_resources_size": "small",
+    "settings": {
+        "some_service_url": "http://localhost:5678",
+        "check_interval_seconds": "10"
+    },
+    "permissions": {
+        "logs": {
+            "read": {
+                "name": "Read Logs",
+                "description": "Allows members to read logs",
+                "assignable": "true",
+                "aggregate_limitations": []
+            }
+        },
+        "packages": {
+            "read": {
+                "name": "Read Packages",
+                "description": "Allows members to read packages",
+                "assignable": "true",
+                "aggregate_limitations": []
+            }
+        }
+    },
+    "required_permissions": {
+        "logs": [
+            "read"
+        ]
+    },
+    "deploymentConfiguration": {
+        "views": {
+            "name": "system-run-log"
+        }
+    }
+}

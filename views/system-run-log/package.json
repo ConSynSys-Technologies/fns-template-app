@@ -1,0 +1,65 @@
+{
+  "name": "system-run-log",
+  "version": "0.0.1",
+  "homepage": "https://github.com/ParaCloudCode/fns-demo",
+  "description": "",
+  "keywords": [
+    "pilet",
+    "system-run-log"
+  ],
+  "dependencies": {
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.15.4",
+    "piral-base": "1.4.3",
+    "piral-core": "1.4.3",
+    "lerna": "^8.1.3"
+  },
+  "peerDependencies": {
+    "piral": "*",
+    "react": "*",
+    "react-dom": "*",
+    "react-router": "*",
+    "react-router-dom": "*"
+  },
+  "scripts": {
+    "start": "pilet debug --schema v1",
+    "build": "pilet build --schema v1",
+    "upgrade": "pilet upgrade"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "piral": {
+    "comment": "Keep this section to use the Piral CLI.",
+    "name": "@procaaso/pc-piral-instance"
+  },
+  "source": "src/index.tsx",
+  "devDependencies": {
+    "@procaaso/pc-piral-instance": "0.8.4",
+    "@procaaso/pc-piral-proto-api": "0.18.1",
+    "@types/node": "latest",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/react-router": "^5",
+    "@types/react-router-dom": "^5",
+    "piral-cli": "1.4.3",
+    "piral-cli-webpack5": "1.4.3",
+    "typescript": "latest"
+  },
+  "peerModules": [],
+  "paracloud": {
+    "package": {
+      "name": "system-run-log",
+      "tags": {
+        "hash": "34dcfb189a4e78cd9a4110e9af4d684d4b3f9942"
+      }
+    },
+    "view": {
+      "name": "system-run-log",
+      "type": "FNS",
+      "description": "System Run Log - Auto Deployment"
+    }
+  }
+}
