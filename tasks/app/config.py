@@ -3,8 +3,7 @@ import functools
 
 
 class Config(pydantic.BaseSettings):
-    fns_url: str = ""
-    fns_token: str | None = None
+    example_config_variable: str = "default value"
 
 
 @functools.lru_cache
