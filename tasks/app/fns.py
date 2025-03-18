@@ -163,7 +163,7 @@ def app_factory():
 
     # example on how to set up the DEV CONFIG
     # procasso_uns_sdk.set_dev_config(
-    #     dev_url="https://dev-....",
+    #     dev_url="https://dev-{FPROD_ID}.fns-tasks.{ENV_NAME}.{ENV_DOMAIN}",
     #     dev_token="secret_token",
     # )
 

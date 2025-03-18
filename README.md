@@ -107,4 +107,4 @@ further insight how it works.
 
 Install Uvicorn -> https://www.uvicorn.org
 
-UVICORN_FACTORY=true UVICORN_RELOAD=true python ./tasks/app -- fns:app_factory
+```UVICORN_FACTORY=true UVICORN_RELOAD=true python ./tasks/app -- fns:app_factory```
