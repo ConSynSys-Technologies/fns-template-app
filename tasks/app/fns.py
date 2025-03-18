@@ -1,6 +1,7 @@
 import json
 import fastapi
 
+import config
 import procasso_uns_sdk
 
 last_system_status = {}
@@ -156,5 +157,14 @@ def app_factory():
     new_server = set_up_server()
 
     logger.info("Set up the server")
+
+    conf = config.get_config()
+    logger.info(f"Example variable from config: {conf.example_config_variable}")
+
+    # example on how to set up the DEV CONFIG
+    # procasso_uns_sdk.set_dev_config(
+    #     dev_url="https://dev-{FPROD_ID}.fns-tasks.{ENV_NAME}.{ENV_DOMAIN}",
+    #     dev_token="secret_token",
+    # )
 
     return new_server.create_app(set_up_subscriber())

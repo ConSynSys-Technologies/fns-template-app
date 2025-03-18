@@ -40,7 +40,7 @@ Keep in mind that the token will work only for 1 hour as a default.
 E.g.
 
 ```
-def start_app():
+def app_factory():
     new_server = set_up_server()
 
     procasso_uns_sdk.set_dev_config(
@@ -52,6 +52,7 @@ def start_app():
 ```
 
 If no messages are arriving, refresh token or restart the dev env.
+
 
 # Finished developing and you want to deploy your app?
 
@@ -101,3 +102,9 @@ You can reach other services like ubiety, stream, control, structure via the sdk
 An example of this can be seen from the function `get_info_for_fns_package`.
 The comment of the sdk function `procasso_uns_sdk.contact_service` will give you 
 further insight how it works.
+
+## Running this example
+
+Install Uvicorn -> https://www.uvicorn.org
+
+```UVICORN_FACTORY=true UVICORN_RELOAD=true python ./tasks/app -- fns:app_factory```
