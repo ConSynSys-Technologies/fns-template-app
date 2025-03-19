@@ -61,6 +61,7 @@ Revert the change that you made to the database connection code.
 
 ## Authorization
 See functions in fns.py:
+    get_system_status_by_id
     get_events_by_root
     get_info_for_fns_package
 
@@ -68,6 +69,8 @@ See functions in fns.py:
 Above each function you want to enable it add this line
 
 ```@procasso_uns_sdk.authz.auth_context("GROUP", "ACTION")```
+
+You also need to add/pass the ```request: fastapi.Request``` parameter to the function.
 
 E.g. Group is logs. Action is read.
 In `pc2.json` you have the permissions listed.
