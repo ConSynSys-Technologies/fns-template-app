@@ -73,7 +73,12 @@ async def save_event(event: procasso_uns_sdk.events.AttributeEvent):
         connection.close()
 
 
-async def get_system_status_by_id(system_id: str, limit: int = 20):
+@procasso_uns_sdk.authz.auth_context("logs", "read")
+async def get_system_status_by_id(
+    request: fastapi.Request,
+    system_id: str,
+    limit: int = 20,
+):
     connection = procasso_uns_sdk.get_db_connection()
 
     stmt = ""
