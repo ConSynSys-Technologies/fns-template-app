@@ -1,5 +1,6 @@
 import * as React from 'react';
 import MySystemForm from './components/SystemStatusTable'
+import withShadowDOM from "./shadow/withShadowDOM";
 
 interface AppProps {
   apiUrl: string;
@@ -14,4 +15,4 @@ const App: React.FC<AppProps> = ({ apiUrl }) => {
   );
 };
 
-export default App
+export default withShadowDOM(App)

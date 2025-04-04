@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { PiletApi } from 'piral-core';
+import { PiletApi } from '@procaaso/pc-piral-instance';
 import App from './App';
+import styles from './styles/style.scss';
 
 export function setup(app: PiletApi) {
   const value = app.getData('data');
-
-  if (!value.apiUrl) {
+  if (!value?.apiUrl) {
     throw new Error('apiUrl is empty');
   }
 
-  app.registerPage('/*', () => <App apiUrl={value.apiUrl} />);
+  app.registerPage('/*', () => <App apiUrl={value?.apiUrl} styles={[styles.toString()]} />);
 }

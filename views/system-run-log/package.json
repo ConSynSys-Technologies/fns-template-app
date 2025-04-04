@@ -11,9 +11,9 @@
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.4",
+    "lerna": "^8.1.3",
     "piral-base": "1.4.3",
-    "piral-core": "1.4.3",
-    "lerna": "^8.1.3"
+    "piral-core": "1.4.3"
   },
   "peerDependencies": {
     "piral": "*",
@@ -46,6 +46,7 @@
     "@types/react-router-dom": "^5",
     "piral-cli": "1.4.3",
     "piral-cli-webpack5": "1.4.3",
+    "raw-loader": "^4.0.2",
     "typescript": "latest"
   },
   "peerModules": [],

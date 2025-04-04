@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import '../style.scss';
 import {
   TextField,
   InputAdornment,
@@ -11,15 +10,19 @@ interface AppProps {
   apiUrl: string;
 }
 
+interface TableRow {
+  [key: number]: string | number;
+}
 
 export default function MySystemForm({ apiUrl }: AppProps) {
   const [systemID, setSystemID] = useState('');
   const [systemName, setSystemName] = useState('');
   const [limit, setLimit] = useState(20);
   const [tableData, setTableData] = useState([]);
-  const [allSystemIDsNames, setSystemNameID] = useState({});
+  const [allSystemIDsNames, setSystemNameID] = useState<Record<string, string>>({});
 
-  const handleChange = (nameWithID) => {
+  const handleChange = (nameWithID: string | null) => {
+    if (!nameWithID) return null;
     const [name, id] = nameWithID.split(' - ');
     setSystemName(name);
     setSystemID(id);
@@ -49,7 +52,7 @@ export default function MySystemForm({ apiUrl }: AppProps) {
     setTableData(data);
   };
 
-  const MyTable = ({ data }) => {
+  const MyTable = ({ data }: { data: TableRow[] }) => {
     return (
       <ul className="responsive-table">
         <li className="table-header">
@@ -59,7 +62,7 @@ export default function MySystemForm({ apiUrl }: AppProps) {
           <div className="col col-1">Timestamp</div>
         </li>
         {data.map((row, i) => (
-          <li className="table-row">
+          <li className="table-row" >
             <div className="col col-1">{allSystemIDsNames[row[0]]}</div>
             <div className="col col-1">{row[0]}</div>
             <div className="col col-1">{row[1] === 0 ? "Stopped" : "Started"}</div>
@@ -95,10 +98,10 @@ export default function MySystemForm({ apiUrl }: AppProps) {
       });
 
       const data = await response.json();
-      var namesIDs = {};
-      namesIDs["All Systems"] = "All Systems";
+      var namesIDs = { "All systems": "All Systems" };
 
       for (var i = 0; i < data.length; i++) {
+        // @ts-ignore
         namesIDs[data[i].id] = data[i].name;
       }
 
@@ -114,7 +117,7 @@ export default function MySystemForm({ apiUrl }: AppProps) {
         options={Object.keys(allSystemIDsNames).map((key) => allSystemIDsNames[key] + " - " + key)}
         value={systemName + " - " + systemID}
         defaultValue={"All Systems"}
-        onChange={(e, newValue) => { handleChange(newValue) }}
+        onChange={(_, newValue) => { handleChange(newValue) }}
         renderInput={(params) => (
           <TextField
             {...params}
