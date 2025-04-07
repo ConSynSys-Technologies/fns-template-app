@@ -17,66 +17,66 @@ const createEmotionCache = (container: HTMLElement) =>
         container,
     });
 
-const withShadowDOM = <P extends object>(
-    WrappedComponent: React.ComponentType<P>
-) => {
-    return ({ styles = [], links = [], ...props }: P & WithShadowDOMProps) => {
-        const hostRef = useRef<HTMLDivElement>(null);
-        const shadowRootRef = useRef<ShadowRoot | null>(null);
-        const portalContainerRef = useRef<HTMLDivElement | null>(null);
-        const emotionStyleRef = useRef<HTMLDivElement | null>(null);
-        const rootInstanceRef = useRef<ReactDOM.Root | null>(null);
+const withShadowDOM =
+    <P extends object>(WrappedComponent: React.ComponentType<P>) =>
+        ({ styles = [], links = [], ...props }: P & WithShadowDOMProps) => {
+            const hostRef = useRef<HTMLDivElement>(null);
+            const shadowRootRef = useRef<ShadowRoot | null>(null);
+            const portalContainerRef = useRef<HTMLDivElement | null>(null);
+            const emotionStyleRef = useRef<HTMLDivElement | null>(null);
+            const rootInstanceRef = useRef<ReactDOM.Root | null>(null);
 
-        useEffect(() => {
-            const host = hostRef.current;
-            if (!host) return;
+            useEffect(() => {
+                const host = hostRef.current;
+                if (!host) return;
 
-            if (!shadowRootRef.current) {
-                shadowRootRef.current = host.attachShadow({ mode: "open" });
+                if (!shadowRootRef.current) {
+                    shadowRootRef.current = host.attachShadow({ mode: "open" });
 
-                emotionStyleRef.current = document.createElement("div");
-                shadowRootRef.current.appendChild(emotionStyleRef.current);
+                    emotionStyleRef.current = document.createElement("div");
+                    shadowRootRef.current.appendChild(emotionStyleRef.current);
 
-                links.forEach((href) => {
-                    const link = document.createElement("link");
-                    link.rel = "stylesheet";
-                    link.href = href;
-                    shadowRootRef.current!.appendChild(link);
-                });
+                    links.forEach((href) => {
+                        const link = document.createElement("link");
+                        link.rel = "stylesheet";
+                        link.href = href;
+                        shadowRootRef.current!.appendChild(link);
+                    });
 
-                styles.forEach((css) => {
-                    const styleTag = document.createElement("style");
-                    styleTag.textContent = css;
-                    shadowRootRef.current!.appendChild(styleTag);
-                });
+                    styles.forEach((css) => {
+                        const styleTag = document.createElement("style");
+                        styleTag.textContent = css;
+                        shadowRootRef.current!.appendChild(styleTag);
+                    });
 
-                portalContainerRef.current = document.createElement("div");
-                shadowRootRef.current.appendChild(portalContainerRef.current);
-            }
-
-            const emotionCache = createEmotionCache(emotionStyleRef.current!);
-
-
-            if (portalContainerRef.current) {
-                if (!rootInstanceRef.current) {
-                    rootInstanceRef.current = ReactDOM.createRoot(portalContainerRef.current);
+                    portalContainerRef.current = document.createElement("div");
+                    shadowRootRef.current.appendChild(portalContainerRef.current);
                 }
 
-                rootInstanceRef.current.render(
-                    <CacheProvider value={emotionCache}>
-                        <ThemeProvider>
-                            <PortalContainerContext.Provider value={portalContainerRef.current}>
-                                <WrappedComponent {...(props as P)} />
-                            </PortalContainerContext.Provider>
-                        </ThemeProvider>
-                    </CacheProvider>
-                );
-            }
+                const emotionCache = createEmotionCache(emotionStyleRef.current!);
 
-        }, [props]);
+                if (portalContainerRef.current) {
+                    if (!rootInstanceRef.current) {
+                        rootInstanceRef.current = ReactDOM.createRoot(
+                            portalContainerRef.current
+                        );
+                    }
 
-        return <div ref={hostRef} />;
-    };
-};
+                    rootInstanceRef.current.render(
+                        <CacheProvider value={emotionCache}>
+                            <ThemeProvider>
+                                <PortalContainerContext.Provider
+                                    value={portalContainerRef.current}
+                                >
+                                    <WrappedComponent {...(props as P)} />
+                                </PortalContainerContext.Provider>
+                            </ThemeProvider>
+                        </CacheProvider>
+                    );
+                }
+            }, [props]);
+
+            return <div ref={hostRef} />;
+        };
 
 export default withShadowDOM;

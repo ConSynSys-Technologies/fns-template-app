@@ -192,15 +192,11 @@ $tile-gap: 10px;
     .table-header {
       display: none;
     }
-    .table-row {
-    }
     li {
       display: block;
     }
     .col {
       flex-basis: 100%;
-    }
-    .col {
       display: flex;
       padding: 10px 0;
       &:before {
@@ -213,22 +209,6 @@ $tile-gap: 10px;
     }
   }
 }
-
-// table {
-//   font-family: arial, sans-serif;
-//   border-collapse: collapse;
-//   width: 100%;
-// }
-
-// td, th {
-//   border: 1px solid #dddddd;
-//   text-align: left;
-//   padding: 8px;
-// }
-
-// tr:nth-child(even) {
-//   background-color: #dddddd;
-// }
 
 .dashboard-container {
   max-width: 1000px;
