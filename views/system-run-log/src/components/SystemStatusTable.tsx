@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import '../style.scss';
 import {
   TextField,
   InputAdornment,
@@ -11,30 +10,56 @@ interface AppProps {
   apiUrl: string;
 }
 
+interface TableRow {
+  [key: number]: string | number;
+}
 
-export default function MySystemForm({ apiUrl }: AppProps) {
-  const [systemID, setSystemID] = useState('');
-  const [systemName, setSystemName] = useState('');
-  const [limit, setLimit] = useState(20);
-  const [tableData, setTableData] = useState([]);
-  const [allSystemIDsNames, setSystemNameID] = useState({});
+interface NamesIDs {
+  "All systems": string;
+  [key: string]: string;
+}
 
-  const handleChange = (nameWithID) => {
+const MyTable = ({ data, allSystemIDsNames }: { data: TableRow[], allSystemIDsNames: Record<string, string> }) => {
+  return (
+    <ul className="responsive-table">
+      <li className="table-header">
+        <div className="col col-1">Name</div>
+        <div className="col col-1">System ID</div>
+        <div className="col col-1">Status</div>
+        <div className="col col-1">Timestamp</div>
+      </li>
+      {data.map((row, i) => (
+        <li className="table-row" key={row[0]}>
+          <div className="col col-1">{allSystemIDsNames[row[0]]}</div>
+          <div className="col col-1">{row[0]}</div>
+          <div className="col col-1">{row[1] === 0 ? "Stopped" : "Started"}</div>
+          <div className="col col-1">{row[2]}</div>
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+export default function MySystemForm({ apiUrl }: Readonly<AppProps>) {
+  const [systemID, setSystemID] = useState<string>('');
+  const [systemName, setSystemName] = useState<string>('');
+  const [limit, setLimit] = useState<number>(20);
+  const [tableData, setTableData] = useState<TableRow[]>([]);
+  const [allSystemIDsNames, setAllSystemIDsNames] = useState<Record<string, string>>({});
+
+  const handleChange = (nameWithID: string | null) => {
+    if (!nameWithID) return null;
     const [name, id] = nameWithID.split(' - ');
     setSystemName(name);
     setSystemID(id);
   };
 
   const getSystemData = async ({ systemID, limit }: { systemID: string, limit: number }) => {
-    if (limit == 0) {
+    if (!limit) {
       return;
     }
 
-    if (systemID == "All Systems") {
-      systemID = "";
-    }
-
-    const url = systemID === ""
+    const url = systemID === "" || systemID === "All Systems"
       ? `${apiUrl}/system/all/limit/${limit}`
       : `${apiUrl}/system/${systemID}/limit/${limit}`;
 
@@ -47,27 +72,6 @@ export default function MySystemForm({ apiUrl }: AppProps) {
 
     const data = await response.json();
     setTableData(data);
-  };
-
-  const MyTable = ({ data }) => {
-    return (
-      <ul className="responsive-table">
-        <li className="table-header">
-          <div className="col col-1">Name</div>
-          <div className="col col-1">System ID</div>
-          <div className="col col-1">Status</div>
-          <div className="col col-1">Timestamp</div>
-        </li>
-        {data.map((row, i) => (
-          <li className="table-row">
-            <div className="col col-1">{allSystemIDsNames[row[0]]}</div>
-            <div className="col col-1">{row[0]}</div>
-            <div className="col col-1">{row[1] === 0 ? "Stopped" : "Started"}</div>
-            <div className="col col-1">{row[2]}</div>
-          </li>
-        ))}
-      </ul>
-    );
   };
 
   useEffect(() => {
@@ -86,7 +90,7 @@ export default function MySystemForm({ apiUrl }: AppProps) {
   useEffect(() => {
     const fetchAllSystemIDs = async () => {
 
-      var url = `${window.location.protocol}//${window.location.hostname}/api/structure/v1/systems`
+      const url = `${window.location.protocol}//${window.location.hostname}/api/structure/v1/systems`
       const response = await fetch(url, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -95,14 +99,13 @@ export default function MySystemForm({ apiUrl }: AppProps) {
       });
 
       const data = await response.json();
-      var namesIDs = {};
-      namesIDs["All Systems"] = "All Systems";
+      const namesIDs: NamesIDs = { "All systems": "All Systems" };
 
-      for (var i = 0; i < data.length; i++) {
-        namesIDs[data[i].id] = data[i].name;
-      }
+      data.forEach((item: { id: string; name: string }) => {
+        namesIDs[item.id] = item.name;
+      })
 
-      setSystemNameID(namesIDs);
+      setAllSystemIDsNames(namesIDs);
     }
 
     fetchAllSystemIDs();
@@ -114,7 +117,7 @@ export default function MySystemForm({ apiUrl }: AppProps) {
         options={Object.keys(allSystemIDsNames).map((key) => allSystemIDsNames[key] + " - " + key)}
         value={systemName + " - " + systemID}
         defaultValue={"All Systems"}
-        onChange={(e, newValue) => { handleChange(newValue) }}
+        onChange={(_, newValue) => { handleChange(newValue) }}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -142,7 +145,7 @@ export default function MySystemForm({ apiUrl }: AppProps) {
         value={limit}
       />
       <div style={{ marginBottom: '20px' }} />
-      {tableData !== null && <MyTable data={tableData} />}
+      {tableData !== null && <MyTable data={tableData} allSystemIDsNames={allSystemIDsNames} />}
     </>
   );
 }
