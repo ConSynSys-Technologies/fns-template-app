@@ -5,5 +5,10 @@ import styles from './styles/style.scss';
 
 export function setup(app: PiletApi) {
   const value = app.getData('data');
+
+  if (!value?.apiUrl) {
+    throw new Error('apiUrl is empty');
+  }
+
   app.registerPage('/*', () => <App apiUrl={value?.apiUrl} styles={[styles.toString()]} />);
 }
