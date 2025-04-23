@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "private": true,
   "workspaces": [
-    "./system-run-log"
+    "./system-run-log-and-file-handling"
   ],
   "dependencies": {},
   "devDependencies": {

@@ -5,6 +5,6 @@
   "useWorkspaces": true,
   "version": "1.0.5",
   "workspaces": [
-    "./system-run-log"
+    "./system-run-log-and-file-handling"
   ]
 }

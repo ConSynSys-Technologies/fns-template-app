@@ -1,6 +1,6 @@
 {
-    "name": "FNS Package",
-    "version": "0.0.1",
+    "name": "System run log and file handling",
+    "version": "1.0.0",
     "description": "This is an FNS Package",
     "deployment_resources_size": "small",
     "database_resources_size": "small",
@@ -24,6 +24,38 @@
                 "assignable": "true",
                 "aggregate_limitations": []
             }
+        },
+        "files": {
+            "list": {
+                "name": "List Files",
+                "description": "Allows members to list files",
+                "assignable": "true",
+                "aggregate_limitations": []
+            },
+            "download": {
+                "name": "Download Files",
+                "description": "Allows members to download files",
+                "assignable": "true",
+                "aggregate_limitations": []
+            },
+            "upload": {
+                "name": "Upload Files",
+                "description": "Allows members to upload files",
+                "assignable": "true",
+                "aggregate_limitations": []
+            },
+            "delete": {
+                "name": "Delete Files",
+                "description": "Allows members to delete files",
+                "assignable": "true",
+                "aggregate_limitations": []
+            },
+            "batchDelete": {
+                "name": "Delete multiple Files",
+                "description": "Allows members to delete multiple files in one go",
+                "assignable": "true",
+                "aggregate_limitations": []
+            }
         }
     },
     "required_permissions": {
@@ -33,7 +65,7 @@
     },
     "deploymentConfiguration": {
         "views": {
-            "name": "system-run-log"
+            "name": "system-run-log-and-file-handling"
         }
     }
 }

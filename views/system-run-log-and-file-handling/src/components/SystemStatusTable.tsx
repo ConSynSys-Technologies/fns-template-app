@@ -79,12 +79,12 @@ export default function MySystemForm({ apiUrl }: Readonly<AppProps>) {
     getSystemData({ systemID, limit });
 
     // Set up interval to call getSystemData every two seconds
-    const intervalId = setInterval(() => {
-      getSystemData({ systemID, limit });
-    }, 2000);
+    // const intervalId = setInterval(() => {
+    //   getSystemData({ systemID, limit });
+    // }, 2000);
 
     // Clean up the interval on component unmount
-    return () => clearInterval(intervalId);
+    // return () => clearInterval(intervalId);
   }, [systemID, limit]);
 
   useEffect(() => {
