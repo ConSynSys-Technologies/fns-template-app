@@ -1,6 +1,7 @@
 node_modules/
 **/*.log
 **/*/dist/
+**/**/.DS_Store
 views/**/*.tgz
 views/**/package-lock.json
 views/node_modules/

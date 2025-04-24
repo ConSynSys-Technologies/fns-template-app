@@ -11,7 +11,7 @@ procasso_uns_sdk.set_dev_config(
     dev_token="dev_token",
 )
 ```
-Keep in mind that the token will work only for 1 hour as a default.
+Keep in mind that the token will work only for 1 hour.
 
 E.g.
 

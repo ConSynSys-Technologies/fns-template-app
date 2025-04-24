@@ -74,12 +74,12 @@ export default function FileHandling({ apiUrl }: AppProps){
       if (resp.ok) {
         const blob = await resp.blob();
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = key;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        const downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = key;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
         window.URL.revokeObjectURL(url);
         setMessage("Download started.");
       } else {

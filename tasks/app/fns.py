@@ -1,4 +1,5 @@
 import json
+import http
 import fastapi
 
 import config
@@ -134,7 +135,7 @@ async def list_files(
     token: str | None = None,
 ):
     resp = await procasso_uns_sdk.storage.list_files(continuation_token=token)
-    if resp.status_code == 200:
+    if resp.status_code == http.HTTPStatus.OK:
         return resp.json()
 
     return {"status": "Files not listed", "error": resp.text}
@@ -146,7 +147,7 @@ async def download_file(
     key: str,
 ):
     response = await procasso_uns_sdk.storage.download_file(key=key)
-    if response.status_code == 200:
+    if response.status_code == http.HTTPStatus.OK:
         try:
             return response.json()
         except Exception:
@@ -167,7 +168,7 @@ async def upload_file(
         file_bytes=file.file.read(),
         filename=file.filename,
     )
-    if response.status_code == 200:
+    if response.status_code == http.HTTPStatus.OK:
         return {"status": "File uploaded"}
 
     return {"status": "File not uploaded", "error": response.text}
@@ -179,7 +180,7 @@ async def delete_file(
     key: str,
 ):
     response = await procasso_uns_sdk.storage.delete_file(key=key)
-    if response.status_code == 200:
+    if response.status_code == http.HTTPStatus.OK:
         return {"status": "File deleted"}
 
     return {"status": "File not deleted", "error": response.text}
@@ -193,7 +194,7 @@ async def batch_delete_files(
     names = body.get("names", [])
 
     response = await procasso_uns_sdk.storage.batch_delete_files(names=names)
-    if response.status_code == 200:
+    if response.status_code == http.HTTPStatus.OK:
         return {"status": "Files deleted"}
 
     return {"status": "Files not deleted", "error": response.text}
