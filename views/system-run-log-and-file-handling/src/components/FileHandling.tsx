@@ -21,6 +21,16 @@ interface FileItem {
   [key: string]: any;
 }
 
+type FileObject = {
+  name: string;
+  size: number;
+};
+
+type FileListResponse = {
+  objects: FileObject[];
+  continuationToken: string;
+};
+
 export default function FileHandling({ apiUrl }: AppProps){
   const [files, setFiles] = useState<FileItem[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -39,9 +49,9 @@ export default function FileHandling({ apiUrl }: AppProps){
         mode: 'cors',
         credentials: 'include',
       });
-      const data = await resp.json();
+      const data: FileListResponse = await resp.json();
       if (data.objects && Array.isArray(data.objects)) {
-        setFiles(data.objects.map((obj: any) => ({ key: obj.name, ...obj })));
+        setFiles(data.objects.map((obj: FileObject) => ({ key: obj.name, ...obj })));
       } else {
         setFiles([]);
       }
@@ -208,7 +218,6 @@ export default function FileHandling({ apiUrl }: AppProps){
           color="secondary"
           onClick={handleBatchDelete}
           disabled={selected.length === 0}
-          // startIcon={<DeleteIcon />}
         >
           Delete Selected
         </Button>
