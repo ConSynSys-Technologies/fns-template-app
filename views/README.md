@@ -1,6 +1,6 @@
-# Integrating FNS with Shadow DOM
+# Overall (install, integrate, run)
 
-This guide explains how to integrate styling inside a Shadow DOM environment, while preserving full theme support and popper-based component behavior.
+This guide explains how to integrate styling inside a Shadow DOM environment, while preserving full theme support and popper-based component behavior and how to deal with the dependencies.
 
 This project structure helps prevent style conflicts between the main application and FNS applications by isolating styles within the Shadow DOM. It allows for better control over rendering and visual consistency across environments.
 
@@ -14,7 +14,35 @@ This project structure helps prevent style conflicts between the main applicatio
 
 ---
 
-## How to Use
+## Dependencies
+
+1. You must have access to our internal tool named Syndi
+2. Install npm - [LINK](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+
+```bash
+npm config set registry https://npm.procaas.us/
+```
+
+Go inside the views folder
+
+```bash
+cd ./views
+SYNDI_ID_TOKEN=`syndi auth token --id` npm install --legacy-peer-deps
+```
+Go inside the frontend folder
+
+```bash
+cd ./system-run-log-and-file-handling
+SYNDI_ID_TOKEN=`syndi auth token --id` npm install --legacy-peer-deps
+```
+
+## Run the app
+```bash
+cd ./views/system-run-log-and-file-handling
+npm start -- --port 3000
+```
+
+## How to Use Shadow DOM
 
 ### 1. Wrap a component with `withShadowDOM`
 

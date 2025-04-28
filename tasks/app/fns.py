@@ -1,4 +1,5 @@
 import json
+import http
 import fastapi
 
 import config
@@ -128,6 +129,77 @@ def set_up_subscriber() -> procasso_uns_sdk.events.AttributeSubscriber:
     return sub
 
 
+@procasso_uns_sdk.authz.auth_context("files", "list")
+async def list_files(
+    request: fastapi.Request,  # pylint: disable=unused-argument
+    token: str | None = None,
+):
+    resp = await procasso_uns_sdk.storage.list_files(continuation_token=token)
+    if resp.status_code == http.HTTPStatus.OK:
+        return resp.json()
+
+    return {"status": "Files not listed", "error": resp.text}
+
+
+@procasso_uns_sdk.authz.auth_context("files", "download")
+async def download_file(
+    request: fastapi.Request,  # pylint: disable=unused-argument
+    key: str,
+):
+    response = await procasso_uns_sdk.storage.download_file(key=key)
+    if response.status_code == http.HTTPStatus.OK:
+        try:
+            return response.json()
+        except Exception:
+            return response.content
+    return {"status": "File not downloaded", "error": response.text}
+
+
+@procasso_uns_sdk.authz.auth_context("files", "upload")
+async def upload_file(
+    request: fastapi.Request,  # pylint: disable=unused-argument
+    file: fastapi.UploadFile,
+):
+    # Check if the file is an image
+    if file.content_type.startswith("image/"):
+        return {"status": "File not uploaded", "error": "Image uploads are not allowed"}
+
+    response = await procasso_uns_sdk.storage.upload_file(
+        file_bytes=file.file.read(),
+        filename=file.filename,
+    )
+    if response.status_code == http.HTTPStatus.OK:
+        return {"status": "File uploaded"}
+
+    return {"status": "File not uploaded", "error": response.text}
+
+
+@procasso_uns_sdk.authz.auth_context("files", "delete")
+async def delete_file(
+    request: fastapi.Request,  # pylint: disable=unused-argument
+    key: str,
+):
+    response = await procasso_uns_sdk.storage.delete_file(key=key)
+    if response.status_code == http.HTTPStatus.OK:
+        return {"status": "File deleted"}
+
+    return {"status": "File not deleted", "error": response.text}
+
+
+@procasso_uns_sdk.authz.auth_context("files", "batchDelete")
+async def batch_delete_files(
+    request: fastapi.Request,  # pylint: disable=unused-argument
+):
+    body = await request.json()
+    names = body.get("names", [])
+
+    response = await procasso_uns_sdk.storage.batch_delete_files(names=names)
+    if response.status_code == http.HTTPStatus.OK:
+        return {"status": "Files deleted"}
+
+    return {"status": "Files not deleted", "error": response.text}
+
+
 @procasso_uns_sdk.authz.auth_context("packages", "read")
 async def get_info_for_fns_package(
     request: fastapi.Request,
@@ -155,6 +227,20 @@ def set_up_server() -> procasso_uns_sdk.server.Server:
     new_server.register_endpoint(
         route="/root/{root}/limit/{limit}", func=get_events_by_root, methods=["GET"]
     )
+    new_server.register_endpoint(
+        route="/storage/list", func=list_files, methods=["GET"]
+    )
+    new_server.register_endpoint(
+        route="/storage/download/{key}", func=download_file, methods=["GET"]
+    )
+    new_server.register_endpoint(route="/storage", func=upload_file, methods=["PUT"])
+
+    new_server.register_endpoint(
+        route="/storage/delete/{key}", func=delete_file, methods=["DELETE"]
+    )
+    new_server.register_endpoint(
+        route="/storage/batchDelete", func=batch_delete_files, methods=["POST"]
+    )
     return new_server
 
 
@@ -168,8 +254,8 @@ def app_factory():
 
     # example on how to set up the DEV CONFIG
     # procasso_uns_sdk.set_dev_config(
-    #     dev_url="https://dev-{FPROD_ID}.fns-tasks.{ENV_NAME}.{ENV_DOMAIN}",
-    #     dev_token="secret_token",
+    #     dev_url="http://localhost:8080",
+    #     dev_token="dev_token",
     # )
 
     return new_server.create_app(set_up_subscriber())

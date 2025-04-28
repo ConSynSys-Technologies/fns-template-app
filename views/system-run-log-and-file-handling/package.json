@@ -1,11 +1,11 @@
 {
-  "name": "system-run-log",
-  "version": "0.0.1",
+  "name": "system-run-log-and-file-handling",
+  "version": "1.0.0",
   "homepage": "https://github.com/ParaCloudCode/fns-demo",
   "description": "",
   "keywords": [
     "pilet",
-    "system-run-log"
+    "system-run-log-and-file-handling"
   ],
   "dependencies": {
     "@emotion/react": "^11.11.3",
@@ -52,15 +52,15 @@
   "peerModules": [],
   "paracloud": {
     "package": {
-      "name": "system-run-log",
+      "name": "system-run-log-and-file-handling",
       "tags": {
         "hash": "34dcfb189a4e78cd9a4110e9af4d684d4b3f9942"
       }
     },
     "view": {
-      "name": "system-run-log",
+      "name": "system-run-log-and-file-handling",
       "type": "FNS",
-      "description": "System Run Log - Auto Deployment"
+      "description": "System Run Log and File Handling"
     }
   }
 }
