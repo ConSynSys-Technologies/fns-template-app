@@ -82,6 +82,18 @@ An example of this can be seen from the function `get_info_for_fns_package`.\
 The comment of the sdk function `procasso_uns_sdk.contact_service` will give you\
 further insight how it works.
 
+## File handling
+You can upload/download/list/delete/batch-delete files via functions provided by this sdk.\
+To understand how to use them, please head over to fns.py and look for these functions:\
+
+```
+list_files
+download_file
+upload_file
+delete_file
+batch_delete_files
+```
+
 ## Running this example
 
 Install Uvicorn -> https://www.uvicorn.org
