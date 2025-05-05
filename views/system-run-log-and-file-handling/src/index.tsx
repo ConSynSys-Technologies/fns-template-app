@@ -11,4 +11,8 @@ export function setup(app: PiletApi) {
   }
 
   app.registerPage('/*', () => <App apiUrl={value?.apiUrl} styles={[styles.toString()]} />);
+
+
+  // var url = "http://localhost:7474";
+  // app.registerPage('/*', () => <App apiUrl={url} styles={[styles.toString()]} />);
 }

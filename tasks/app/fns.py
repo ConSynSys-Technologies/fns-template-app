@@ -146,13 +146,7 @@ async def download_file(
     request: fastapi.Request,  # pylint: disable=unused-argument
     filename: str,
 ):
-    response = await procasso_uns_sdk.storage.download_file(key=filename)
-    if response.status_code == http.HTTPStatus.OK:
-        try:
-            return response.json()
-        except Exception:
-            return response.content
-    return {"status": "File not downloaded", "error": response.text}
+    return await procasso_uns_sdk.storage.download_file(filename=filename)
 
 
 @procasso_uns_sdk.authz.auth_context("files", "upload")
