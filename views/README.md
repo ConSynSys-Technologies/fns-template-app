@@ -36,6 +36,10 @@ cd ./system-run-log-and-file-handling
 SYNDI_ID_TOKEN=`syndi auth token --id` npm install --legacy-peer-deps
 ```
 
+## How to run the example during development
+Open file `index.tsx`.
+Comment lines 7-13 and uncomment lines 17 and 18.
+
 ## Run the app
 ```bash
 cd ./views/system-run-log-and-file-handling
