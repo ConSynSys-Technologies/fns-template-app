@@ -144,15 +144,9 @@ async def list_files(
 @procasso_uns_sdk.authz.auth_context("files", "download")
 async def download_file(
     request: fastapi.Request,  # pylint: disable=unused-argument
-    key: str,
+    filename: str,
 ):
-    response = await procasso_uns_sdk.storage.download_file(key=key)
-    if response.status_code == http.HTTPStatus.OK:
-        try:
-            return response.json()
-        except Exception:
-            return response.content
-    return {"status": "File not downloaded", "error": response.text}
+    return await procasso_uns_sdk.storage.download_file(filename=filename)
 
 
 @procasso_uns_sdk.authz.auth_context("files", "upload")
@@ -177,9 +171,9 @@ async def upload_file(
 @procasso_uns_sdk.authz.auth_context("files", "delete")
 async def delete_file(
     request: fastapi.Request,  # pylint: disable=unused-argument
-    key: str,
+    filename: str,
 ):
-    response = await procasso_uns_sdk.storage.delete_file(key=key)
+    response = await procasso_uns_sdk.storage.delete_file(key=filename)
     if response.status_code == http.HTTPStatus.OK:
         return {"status": "File deleted"}
 
@@ -231,12 +225,12 @@ def set_up_server() -> procasso_uns_sdk.server.Server:
         route="/storage/list", func=list_files, methods=["GET"]
     )
     new_server.register_endpoint(
-        route="/storage/download/{key}", func=download_file, methods=["GET"]
+        route="/storage/download/{filename}", func=download_file, methods=["GET"]
     )
     new_server.register_endpoint(route="/storage", func=upload_file, methods=["PUT"])
 
     new_server.register_endpoint(
-        route="/storage/delete/{key}", func=delete_file, methods=["DELETE"]
+        route="/storage/delete/{filename}", func=delete_file, methods=["DELETE"]
     )
     new_server.register_endpoint(
         route="/storage/batchDelete", func=batch_delete_files, methods=["POST"]
