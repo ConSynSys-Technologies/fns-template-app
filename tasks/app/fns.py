@@ -156,7 +156,7 @@ async def upload_file(
 ):
     # Check if the file is an image
     if file.content_type.startswith("image/"):
-        return {"status": "File not uploaded", "error": "Image uploads are not allowed"}
+        return {"status": "File not uploaded.", "error": "Image uploads are not allowed"}
 
     try:
         response = await procasso_uns_sdk.storage.upload_file(
@@ -166,10 +166,10 @@ async def upload_file(
         if response.status_code == http.HTTPStatus.OK:
             return {"status": "File uploaded"}
     except ValueError as e:
-        return {"status": "File not uploaded", "error": str(e)}
+        return {"status": "File not uploaded.", "error": str(e)}
     except Exception as e:
         logger.error(f"Error uploading file: {e}")
-        return {"status": "File not uploaded", "error": str(e)}
+        return {"status": "File not uploaded.", "error": str(e)}
 
     return {"status": "File not uploaded.", "error": response.text}
 
