@@ -156,16 +156,22 @@ async def upload_file(
 ):
     # Check if the file is an image
     if file.content_type.startswith("image/"):
-        return {"status": "File not uploaded", "error": "Image uploads are not allowed"}
+        return {"status": "File not uploaded.", "error": "Image uploads are not allowed"}
 
-    response = await procasso_uns_sdk.storage.upload_file(
-        file_bytes=file.file.read(),
-        filename=file.filename,
-    )
-    if response.status_code == http.HTTPStatus.OK:
-        return {"status": "File uploaded"}
+    try:
+        response = await procasso_uns_sdk.storage.upload_file(
+            file_bytes=file.file.read(),
+            filename=file.filename,
+        )
+        if response.status_code == http.HTTPStatus.OK:
+            return {"status": "File uploaded"}
+    except ValueError as e:
+        return {"status": "File not uploaded.", "error": str(e)}
+    except Exception as e:
+        logger.error(f"Error uploading file: {e}")
+        return {"status": "File not uploaded.", "error": str(e)}
 
-    return {"status": "File not uploaded", "error": response.text}
+    return {"status": "File not uploaded.", "error": response.text}
 
 
 @procasso_uns_sdk.authz.auth_context("files", "delete")
@@ -173,9 +179,13 @@ async def delete_file(
     request: fastapi.Request,  # pylint: disable=unused-argument
     filename: str,
 ):
-    response = await procasso_uns_sdk.storage.delete_file(key=filename)
-    if response.status_code == http.HTTPStatus.OK:
-        return {"status": "File deleted"}
+    try:
+        response = await procasso_uns_sdk.storage.delete_file(filename=filename)
+        if response.status_code == http.HTTPStatus.OK:
+            return {"status": "File deleted"}
+    except Exception as e:
+        logger.error(f"Error deleting file: {e}")
+        return {"status": "File not deleted.", "error": str(e)}
 
     return {"status": "File not deleted", "error": response.text}
 
@@ -187,9 +197,13 @@ async def batch_delete_files(
     body = await request.json()
     names = body.get("names", [])
 
-    response = await procasso_uns_sdk.storage.batch_delete_files(names=names)
-    if response.status_code == http.HTTPStatus.OK:
-        return {"status": "Files deleted"}
+    try:
+        response = await procasso_uns_sdk.storage.batch_delete_files(names=names)
+        if response.status_code == http.HTTPStatus.OK:
+            return {"status": "Files deleted"}
+    except Exception as e:
+        logger.error(f"Error deleting files: {e}")
+        return {"status": "Files not deleted.", "error": str(e)}
 
     return {"status": "Files not deleted", "error": response.text}
 
