@@ -185,7 +185,7 @@ async def delete_file(
             return {"status": "File deleted"}
     except Exception as e:
         logger.error(f"Error deleting file: {e}")
-        return {"status": "File not deleted", "error": str(e)}
+        return {"status": "File not deleted.", "error": str(e)}
 
     return {"status": "File not deleted", "error": response.text}
 
@@ -203,7 +203,7 @@ async def batch_delete_files(
             return {"status": "Files deleted"}
     except Exception as e:
         logger.error(f"Error deleting files: {e}")
-        return {"status": "Files not deleted", "error": str(e)}
+        return {"status": "Files not deleted.", "error": str(e)}
 
     return {"status": "Files not deleted", "error": response.text}
 
