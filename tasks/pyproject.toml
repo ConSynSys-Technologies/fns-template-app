@@ -2,7 +2,7 @@
 name = "FNS Template app"
 version = "0.0.5"
 description = "Basic Demo of FNS app"
-authors = ["etoplica <etoplica@paracloud.ai>"]
+authors = ["etoplica <etoplica@consynsys.com>"]
 packages = [
 	{ include = "app", from = "./"},
 ]
