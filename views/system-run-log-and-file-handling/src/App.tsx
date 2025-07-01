@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
 } from '@mui/material';
@@ -11,29 +11,44 @@ interface AppProps {
 }
 
 const App: React.FC<AppProps> = ({ apiUrl }) => {
-  const [showFileHandling, setShowFileHandling] = React.useState(false);
+  const [showFileHandling, setShowFileHandling] = useState(false);
+  const [hasMissingPermissions, setHasMissingPermissions] = useState(false);
+
+  if (hasMissingPermissions) {
+    return (
+      <div>
+        You are missing permissions to see this!
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-container">
       <div style={{ marginBottom: 16 }}>
         {!showFileHandling ? (
           <Button variant="contained"
-          component="label" onClick={() => setShowFileHandling(true)}>
+            component="label" onClick={() => setShowFileHandling(true)}>
             Show File Handling
           </Button>
         ) : (
           <Button variant="contained"
-          component="label" onClick={() => setShowFileHandling(false)}>
+            component="label" onClick={() => setShowFileHandling(false)}>
             Back to System Run Log
           </Button>
         )}
       </div>
       {showFileHandling ? (
-        <FileHandling apiUrl={apiUrl} />
+        <FileHandling
+          apiUrl={apiUrl}
+          setHasMissingPermissions={setHasMissingPermissions}
+        />
       ) : (
         <>
           <h1>System run log</h1>
-          <MySystemForm apiUrl={apiUrl} />
+          <MySystemForm
+            apiUrl={apiUrl}
+            setHasMissingPermissions={setHasMissingPermissions}
+          />
         </>
       )}
     </div>

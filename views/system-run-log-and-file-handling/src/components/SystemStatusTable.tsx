@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TextField,
   InputAdornment,
@@ -8,6 +7,7 @@ import {
 
 interface AppProps {
   apiUrl: string;
+  setHasMissingPermissions: (newValue: boolean) => void;
 }
 
 interface TableRow {
@@ -19,7 +19,7 @@ interface NamesIDs {
   [key: string]: string;
 }
 
-const MyTable = ({ data, allSystemIDsNames }: { data: TableRow[], allSystemIDsNames: Record<string, string> }) => {
+const StatusTable = ({ data, allSystemIDsNames }: { data: TableRow[], allSystemIDsNames: Record<string, string> }) => {
   return (
     <ul className="responsive-table">
       <li className="table-header">
@@ -28,7 +28,7 @@ const MyTable = ({ data, allSystemIDsNames }: { data: TableRow[], allSystemIDsNa
         <div className="col col-1">Status</div>
         <div className="col col-1">Timestamp</div>
       </li>
-      {data.map((row, i) => (
+      {data?.map((row, i) => (
         <li className="table-row" key={row[0]}>
           <div className="col col-1">{allSystemIDsNames[row[0]]}</div>
           <div className="col col-1">{row[0]}</div>
@@ -40,7 +40,7 @@ const MyTable = ({ data, allSystemIDsNames }: { data: TableRow[], allSystemIDsNa
   );
 };
 
-export default function MySystemForm({ apiUrl }: Readonly<AppProps>) {
+export default function MySystemForm({ apiUrl, setHasMissingPermissions }: AppProps) {
   const [systemID, setSystemID] = useState<string>('');
   const [systemName, setSystemName] = useState<string>('');
   const [limit, setLimit] = useState<number>(20);
@@ -59,19 +59,28 @@ export default function MySystemForm({ apiUrl }: Readonly<AppProps>) {
       return;
     }
 
-    const url = systemID === "" || systemID === "All Systems"
-      ? `${apiUrl}/system/all/limit/${limit}`
-      : `${apiUrl}/system/${systemID}/limit/${limit}`;
+    try {
+      const url = systemID === "" || systemID === "All Systems"
+        ? `${apiUrl}/system/all/limit/${limit}`
+        : `${apiUrl}/system/${systemID}/limit/${limit}`;
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      mode: 'cors',
-      credentials: 'include',
-    });
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        mode: 'cors',
+        credentials: 'include',
+      });
 
-    const data = await response.json();
-    setTableData(data);
+      if (response.status === 403) {
+        setHasMissingPermissions(true);
+        return;
+      }
+
+      const data = await response.json();
+      setTableData(data);
+    } catch (e) {
+      console.error('Failed to fetch files:', e);
+    }
   };
 
   useEffect(() => {
@@ -89,23 +98,26 @@ export default function MySystemForm({ apiUrl }: Readonly<AppProps>) {
 
   useEffect(() => {
     const fetchAllSystemIDs = async () => {
+      try {
+        const url = `${window.location.protocol}//${window.location.hostname}/api/structure/v1/systems`
+        const response = await fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          mode: 'cors',
+          credentials: 'include',
+        });
 
-      const url = `${window.location.protocol}//${window.location.hostname}/api/structure/v1/systems`
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        mode: 'cors',
-        credentials: 'include',
-      });
+        const data = await response.json();
+        const namesIDs: NamesIDs = { "All systems": "All Systems" };
 
-      const data = await response.json();
-      const namesIDs: NamesIDs = { "All systems": "All Systems" };
+        data.forEach((item: { id: string; name: string }) => {
+          namesIDs[item.id] = item.name;
+        })
 
-      data.forEach((item: { id: string; name: string }) => {
-        namesIDs[item.id] = item.name;
-      })
-
-      setAllSystemIDsNames(namesIDs);
+        setAllSystemIDsNames(namesIDs);
+      } catch (e) {
+        console.error('Failed to fetch files:', e);
+      }
     }
 
     fetchAllSystemIDs();
@@ -145,7 +157,7 @@ export default function MySystemForm({ apiUrl }: Readonly<AppProps>) {
         value={limit}
       />
       <div style={{ marginBottom: '20px' }} />
-      {tableData !== null && <MyTable data={tableData} allSystemIDsNames={allSystemIDsNames} />}
+      {tableData !== null && <StatusTable data={tableData} allSystemIDsNames={allSystemIDsNames} />}
     </>
   );
 }
