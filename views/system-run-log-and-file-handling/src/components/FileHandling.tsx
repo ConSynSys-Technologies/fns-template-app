@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
   Button,
-  TextField,
   List,
   ListItem,
   ListItemText,
   Checkbox,
-  IconButton,
   Typography,
   Box,
   CircularProgress,
@@ -14,6 +12,7 @@ import {
 
 interface AppProps {
   apiUrl: string;
+  setHasMissingPermissions: (newValue: boolean) => void;
 }
 
 interface FileItem {
@@ -31,25 +30,31 @@ type FileListResponse = {
   continuationToken: string;
 };
 
-export default function FileHandling({ apiUrl }: AppProps){
+export default function FileHandling({ apiUrl, setHasMissingPermissions }: AppProps) {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   // Fetch file list
   const fetchFiles = async () => {
-    setLoading(true);
+    setIsLoading(true);
     try {
-      const resp = await fetch(`${apiUrl}/storage/list`, {
+      const response = await fetch(`${apiUrl}/storage/list`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         mode: 'cors',
         credentials: 'include',
       });
-      const data: FileListResponse = await resp.json();
+
+      if (response.status === 403) {
+        setHasMissingPermissions(true);
+        return;
+      }
+
+      const data: FileListResponse = await response.json();
       if (data.objects && Array.isArray(data.objects)) {
         setFiles(data.objects.map((obj: FileObject) => ({ key: obj.name, ...obj })));
       } else {
@@ -57,8 +62,9 @@ export default function FileHandling({ apiUrl }: AppProps){
       }
     } catch (e) {
       setMessage("Failed to fetch files.");
+      console.error('Failed to fetch files:', e);
     }
-    setLoading(false);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -95,8 +101,9 @@ export default function FileHandling({ apiUrl }: AppProps){
       } else {
         setMessage("Failed to download file.");
       }
-    } catch {
+    } catch (e) {
       setMessage("Failed to download file.");
+      console.error('Failed to fetch files:', e);
     }
   };
 
@@ -116,8 +123,9 @@ export default function FileHandling({ apiUrl }: AppProps){
       } else {
         setMessage(data.error || "Failed to delete file.");
       }
-    } catch {
+    } catch (e) {
       setMessage("Failed to delete file.");
+      console.error('Failed to delete files:', e);
     }
   };
 
@@ -140,15 +148,16 @@ export default function FileHandling({ apiUrl }: AppProps){
       } else {
         setMessage(data.error || "Failed to batch delete.");
       }
-    } catch {
+    } catch (e) {
       setMessage("Failed to batch delete.");
+      console.error('Failed to batch delete files:', e);
     }
   };
 
   // Upload file
   const handleUpload = async () => {
     if (!uploadFile) return;
-    setUploading(true);
+    setIsUploading(true);
     setMessage(null);
     try {
       const formData = new FormData();
@@ -171,10 +180,11 @@ export default function FileHandling({ apiUrl }: AppProps){
         setUploadFile(null);
         fetchFiles();
       }
-    } catch {
+    } catch (e) {
       setMessage("Failed to upload file.");
+      console.error('Failed to upload files:', e);
     }
-    setUploading(false);
+    setIsUploading(false);
   };
 
   return (
@@ -191,7 +201,7 @@ export default function FileHandling({ apiUrl }: AppProps){
         <Button
           variant="contained"
           component="label"
-          disabled={uploading}
+          disabled={isUploading}
         >
           Select File
           <input
@@ -207,9 +217,9 @@ export default function FileHandling({ apiUrl }: AppProps){
           variant="contained"
           color="primary"
           onClick={handleUpload}
-          disabled={!uploadFile || uploading}
+          disabled={!uploadFile || isUploading}
         >
-          {uploading ? <CircularProgress size={20} /> : "Upload"}
+          {isUploading ? <CircularProgress size={20} /> : "Upload"}
         </Button>
       </Box>
       <Box sx={{ mb: 2 }}>
@@ -229,7 +239,7 @@ export default function FileHandling({ apiUrl }: AppProps){
           Refresh
         </Button>
       </Box>
-      {loading ? (
+      {isLoading ? (
         <CircularProgress />
       ) : (
         <List dense>
@@ -242,20 +252,20 @@ export default function FileHandling({ apiUrl }: AppProps){
               secondaryAction={
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => handleDownload(file.key)}
+                    size="small"
+                    variant="outlined"
+                    onClick={() => handleDownload(file.key)}
                   >
-                  Download
+                    Download
                   </Button>
                   <Box sx={{ mx: 2 }} />
                   <Button
-                  size="small"
-                  variant="outlined"
-                  color="error"
-                  onClick={() => handleDelete(file.key)}
+                    size="small"
+                    variant="outlined"
+                    color="error"
+                    onClick={() => handleDelete(file.key)}
                   >
-                  Delete
+                    Delete
                   </Button>
                 </Box>
               }
