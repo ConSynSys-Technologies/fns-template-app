@@ -48,16 +48,16 @@ When renaming `system-run-log-and-file-handling` folder, make sure to rename it 
 
 ## Installing Back-End dependencies
 
-The only dependency that you need is the procaaso_uns_sdk.\
+The only dependency that you need is the procaaso_fns_sdk.\
 Make sure you have access to our internal tool **syndi**.
 
 ```
-TOKEN=`syndi auth token --id`; pip install procaaso_uns_sdk -v --extra-index-url https://syndi:$TOKEN@pypi.procaas.us/simple
+TOKEN=`syndi auth token --id`; pip install procaaso_fns_sdk -v --extra-index-url https://syndi:$TOKEN@pypi.procaas.us/simple
 ```
 
 Or if you need to specify a version:
 ```
-TOKEN=`syndi auth token --id`; pip install procaaso_uns_sdk==0.4.0 -v --extra-index-url https://syndi:$TOKEN@pypi.procaas.us/simple
+TOKEN=`syndi auth token --id`; pip install procaaso_fns_sdk==1.0.0 -v --extra-index-url https://syndi:$TOKEN@pypi.procaas.us/simple
 ```
 
 # SDK Features 

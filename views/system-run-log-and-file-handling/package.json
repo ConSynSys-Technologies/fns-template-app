@@ -60,7 +60,7 @@
     "view": {
       "name": "system-run-log-and-file-handling",
       "type": "FNS",
-      "description": "System Run Log and File Handling"
+      "description": "Endrit Tests lock feature"
     }
   }
 }
