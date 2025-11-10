@@ -3,14 +3,14 @@ import http
 import fastapi
 
 import config
-import procasso_uns_sdk
+import procaaso_fns_sdk
 
 last_system_status = {}
 
-logger = procasso_uns_sdk.logs.get_logger()
+logger = procaaso_fns_sdk.logs.get_logger()
 
 
-async def react_and_save_event(event: procasso_uns_sdk.events.AttributeEvent):
+async def react_and_save_event(event: procaaso_fns_sdk.events.AttributeEvent):
     print("Event received")
     if not event.state.get("state"):
         print("no state passed")
@@ -35,9 +35,9 @@ async def react_and_save_event(event: procasso_uns_sdk.events.AttributeEvent):
 
 
 async def save_system_status(
-    event: procasso_uns_sdk.events.AttributeEvent, system_state: int, timestamp: str
+    event: procaaso_fns_sdk.events.AttributeEvent, system_state: int, timestamp: str
 ):
-    connection = procasso_uns_sdk.get_db_connection()
+    connection = procaaso_fns_sdk.get_db_connection()
 
     try:
         with connection.cursor() as cursor:
@@ -51,8 +51,8 @@ async def save_system_status(
         connection.close()
 
 
-async def save_event(event: procasso_uns_sdk.events.AttributeEvent):
-    connection = procasso_uns_sdk.get_db_connection()
+async def save_event(event: procaaso_fns_sdk.events.AttributeEvent):
+    connection = procaaso_fns_sdk.get_db_connection()
 
     try:
         with connection.cursor() as cursor:
@@ -74,13 +74,13 @@ async def save_event(event: procasso_uns_sdk.events.AttributeEvent):
         connection.close()
 
 
-@procasso_uns_sdk.authz.auth_context("logs", "read")
+@procaaso_fns_sdk.authz.auth_context("logs", "read")
 async def get_system_status_by_id(
     request: fastapi.Request,
     system_id: str,
     limit: int = 20,
 ):
-    connection = procasso_uns_sdk.get_db_connection()
+    connection = procaaso_fns_sdk.get_db_connection()
 
     stmt = ""
     if system_id != "all":
@@ -98,13 +98,13 @@ async def get_system_status_by_id(
         connection.close()
 
 
-@procasso_uns_sdk.authz.auth_context("logs", "read")
+@procaaso_fns_sdk.authz.auth_context("logs", "read")
 async def get_events_by_root(
     request: fastapi.Request,
     root: str,
     limit: int = 20,
 ):
-    connection = procasso_uns_sdk.get_db_connection()
+    connection = procaaso_fns_sdk.get_db_connection()
 
     try:
         with connection.cursor() as cursor:
@@ -118,10 +118,10 @@ async def get_events_by_root(
         connection.close()
 
 
-def set_up_subscriber() -> procasso_uns_sdk.events.AttributeSubscriber:
-    sub = procasso_uns_sdk.events.AttributeSubscriber(get_snapshot=False)
+def set_up_subscriber() -> procaaso_fns_sdk.events.AttributeSubscriber:
+    sub = procaaso_fns_sdk.events.AttributeSubscriber(get_snapshot=False)
 
-    event1 = procasso_uns_sdk.events.Attribute(
+    event1 = procaaso_fns_sdk.events.Attribute(
         root="phase", instrument="phase", attribute="state"
     )
 
@@ -129,37 +129,40 @@ def set_up_subscriber() -> procasso_uns_sdk.events.AttributeSubscriber:
     return sub
 
 
-@procasso_uns_sdk.authz.auth_context("files", "list")
+@procaaso_fns_sdk.authz.auth_context("files", "list")
 async def list_files(
     request: fastapi.Request,  # pylint: disable=unused-argument
     token: str | None = None,
 ):
-    resp = await procasso_uns_sdk.storage.list_files(continuation_token=token)
+    resp = await procaaso_fns_sdk.storage.list_files(continuation_token=token)
     if resp.status_code == http.HTTPStatus.OK:
         return resp.json()
 
     return {"status": "Files not listed", "error": resp.text}
 
 
-@procasso_uns_sdk.authz.auth_context("files", "download")
+@procaaso_fns_sdk.authz.auth_context("files", "download")
 async def download_file(
     request: fastapi.Request,  # pylint: disable=unused-argument
     filename: str,
 ):
-    return await procasso_uns_sdk.storage.download_file(filename=filename)
+    return await procaaso_fns_sdk.storage.download_file(filename=filename)
 
 
-@procasso_uns_sdk.authz.auth_context("files", "upload")
+@procaaso_fns_sdk.authz.auth_context("files", "upload")
 async def upload_file(
     request: fastapi.Request,  # pylint: disable=unused-argument
     file: fastapi.UploadFile,
 ):
     # Check if the file is an image
     if file.content_type.startswith("image/"):
-        return {"status": "File not uploaded.", "error": "Image uploads are not allowed"}
+        return {
+            "status": "File not uploaded.",
+            "error": "Image uploads are not allowed",
+        }
 
     try:
-        response = await procasso_uns_sdk.storage.upload_file(
+        response = await procaaso_fns_sdk.storage.upload_file(
             file_bytes=file.file.read(),
             filename=file.filename,
         )
@@ -174,13 +177,13 @@ async def upload_file(
     return {"status": "File not uploaded.", "error": response.text}
 
 
-@procasso_uns_sdk.authz.auth_context("files", "delete")
+@procaaso_fns_sdk.authz.auth_context("files", "delete")
 async def delete_file(
     request: fastapi.Request,  # pylint: disable=unused-argument
     filename: str,
 ):
     try:
-        response = await procasso_uns_sdk.storage.delete_file(filename=filename)
+        response = await procaaso_fns_sdk.storage.delete_file(filename=filename)
         if response.status_code == http.HTTPStatus.OK:
             return {"status": "File deleted"}
     except Exception as e:
@@ -190,7 +193,7 @@ async def delete_file(
     return {"status": "File not deleted", "error": response.text}
 
 
-@procasso_uns_sdk.authz.auth_context("files", "batchDelete")
+@procaaso_fns_sdk.authz.auth_context("files", "batchDelete")
 async def batch_delete_files(
     request: fastapi.Request,  # pylint: disable=unused-argument
 ):
@@ -198,7 +201,7 @@ async def batch_delete_files(
     names = body.get("names", [])
 
     try:
-        response = await procasso_uns_sdk.storage.batch_delete_files(names=names)
+        response = await procaaso_fns_sdk.storage.batch_delete_files(names=names)
         if response.status_code == http.HTTPStatus.OK:
             return {"status": "Files deleted"}
     except Exception as e:
@@ -208,20 +211,36 @@ async def batch_delete_files(
     return {"status": "Files not deleted", "error": response.text}
 
 
-@procasso_uns_sdk.authz.auth_context("packages", "read")
+@procaaso_fns_sdk.authz.auth_context("packages", "read")
 async def get_info_for_fns_package(
     request: fastapi.Request,
     package_id: str,
 ):
-    return await procasso_uns_sdk.contact_service(
-        procasso_uns_sdk.Service.UBIETY,
+    return await procaaso_fns_sdk.contact_service(
+        procaaso_fns_sdk.Service.UBIETY,
         f"fnsPackages/{package_id}",
         method="GET",
     )
 
 
-def set_up_server() -> procasso_uns_sdk.server.Server:
-    new_server = procasso_uns_sdk.server.Server()
+async def get_info_for_system(
+    request: fastapi.Request,
+    id: str,
+):
+    authorization = request.headers.get("Authorization")
+
+    response = await procaaso_fns_sdk.contact_service(
+        procaaso_fns_sdk.Service.STRUCTURE,
+        f"systems/{id}",
+        method="GET",
+        auth_token=authorization,
+    )
+
+    print("Response from STRUCTURE: ", response)
+
+
+def set_up_server() -> procaaso_fns_sdk.server.Server:
+    new_server = procaaso_fns_sdk.server.Server()
     new_server.register_endpoint(
         route="/system/{system_id}/limit/{limit}",
         func=get_system_status_by_id,
@@ -230,6 +249,11 @@ def set_up_server() -> procasso_uns_sdk.server.Server:
     new_server.register_endpoint(
         route="/fnsPackage/{package_id}",
         func=get_info_for_fns_package,
+        methods=["GET"],
+    )
+    new_server.register_endpoint(
+        route="/system/{id}",
+        func=get_info_for_system,
         methods=["GET"],
     )
     new_server.register_endpoint(
@@ -261,7 +285,7 @@ def app_factory():
     logger.info(f"Example variable from config: {conf.example_config_variable}")
 
     # example on how to set up the DEV CONFIG
-    # procasso_uns_sdk.set_dev_config(
+    # procaaso_fns_sdk.set_dev_config(
     #     dev_url="http://localhost:8080",
     #     dev_token="dev_token",
     # )

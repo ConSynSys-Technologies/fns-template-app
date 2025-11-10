@@ -6,7 +6,7 @@ Generate a new short token via `syndi auth token`.
 Add this part in the start_app function (or whatever function that creates the Fastapi app)
 
 ```
-procasso_uns_sdk.set_dev_config(
+procaaso_fns_sdk.set_dev_config(
     dev_url="http://localhost:8080",
     dev_token="dev_token",
 )
@@ -19,7 +19,7 @@ E.g.
 def app_factory():
     new_server = set_up_server()
 
-    procasso_uns_sdk.set_dev_config(
+    procaaso_fns_sdk.set_dev_config(
         dev_url="http://localhost:8080",
         dev_token="dev_token",
     )
@@ -44,7 +44,7 @@ See functions in fns.py:\
 ### How to use it
 Above each function you want to enable it add this line
 
-```@procasso_uns_sdk.authz.auth_context("GROUP", "ACTION")```
+```@procaaso_fns_sdk.authz.auth_context("GROUP", "ACTION")```
 
 You also need to add/pass the ```request: fastapi.Request``` parameter to the function.
 
@@ -79,7 +79,7 @@ last_days: int
 ## Reaching other services
 You can reach other services like ubiety, stream, control, structure via the sdk.\
 An example of this can be seen from the function `get_info_for_fns_package`.\
-The comment of the sdk function `procasso_uns_sdk.contact_service` will give you\
+The comment of the sdk function `procaaso_fns_sdk.contact_service` will give you\
 further insight how it works.
 
 ## File handling
@@ -98,4 +98,4 @@ batch_delete_files
 
 Install Uvicorn -> https://www.uvicorn.org
 
-```UVICORN_FACTORY=true UVICORN_RELOAD=true python ./tasks/app -- fns:app_factory --port=7474```
+```UVICORN_FACTORY=true UVICORN_RELOAD=true python ./tasks/app --port=7474 -- fns:app_factory ```
