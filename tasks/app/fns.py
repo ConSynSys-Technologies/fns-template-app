@@ -227,16 +227,13 @@ async def get_info_for_system(
     request: fastapi.Request,
     id: str,
 ):
-    authorization = request.headers.get("Authorization")
-
     response = await procaaso_fns_sdk.contact_service(
         procaaso_fns_sdk.Service.STRUCTURE,
         f"systems/{id}",
         method="GET",
-        auth_token=authorization,
     )
 
-    print("Response from STRUCTURE: ", response)
+    return response.json()
 
 
 def set_up_server() -> procaaso_fns_sdk.server.Server:
