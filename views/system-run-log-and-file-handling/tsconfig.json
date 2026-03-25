@@ -4,7 +4,6 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "lib": ["dom", "es2018"],
-    "moduleResolution": "node",
     "module": "esnext",
     "jsx": "react",
     "importHelpers": true,
