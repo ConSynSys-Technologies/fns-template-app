@@ -1,7 +1,7 @@
 {
-  "name": "GeneratedDashboard",
-  "version": "0.1.21",
-  "description": "descriptionVal",
+  "name": "<put app name here>",
+  "version": "0.0.1",
+  "description": "<put description here>",
   "deployment_resources_size": "small",
   "database_resources_size": "small",
   "settings": {},
@@ -9,7 +9,7 @@
   "required_permissions": {},
   "deploymentConfiguration": {
     "views": {
-      "name": "viewPackageName"
+      "name": "<put view name here>"
     }
   }
 }
