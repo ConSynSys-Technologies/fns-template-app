@@ -4,7 +4,6 @@ import procaaso_fns_sdk
 import router_functions
 import db_functions
 import environments
-from db_connection import setup_db_connection
 
 
 def set_up_server(logger):
@@ -45,8 +44,6 @@ def app_factory():
 
     if os.getenv("DEV_MODE"):
         environments.set_dev_config(logger)
-
-    setup_db_connection()
 
     new_server = set_up_server(logger)
     fast_api = new_server.create_app()

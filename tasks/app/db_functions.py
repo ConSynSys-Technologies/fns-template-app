@@ -1,38 +1,35 @@
-from typing import  ParamSpec, TypeVar
 import procaaso_fns_sdk
 
-from db_tables import *
-from models import *
-
-from sqlalchemy import Engine
-from sqlalchemy.orm import Session
+from models import Config
 
 logger = procaaso_fns_sdk.logs.get_logger()
-
-engine: Engine | None = None
-session_maker = None
-R = TypeVar("R")
-P = ParamSpec("P")
-
-from enum import Enum
-from db_connection import *
 
 """
 DEFINE NEW DATABASE INTERACTION FUNCTIONS HERE
 
-example:
-@db_session_handler
-def get_config(session: Session, config_id: str):
-    config = session.query(ConfigRow).filter_by(config_id=config_id).first()
-    if not config:
+Example:
+def get_config(config_id: str):
+    conn = procaaso_fns_sdk.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT config_id, config_value FROM configs WHERE config_id = ?",
+        (config_id,),
+    )
+    row = cursor.fetchone()
+    if not row:
         return None
-    return Config(config_id=config.config_id, config_value=config.config_value)
+    return Config(config_id=row[0], config_value=row[1])
 """
 
 
-@db_session_handler
-def get_config(session: Session, config_id: str):
-    config = session.query(ConfigRow).filter_by(config_id=config_id).first()
-    if not config:
+def get_config(config_id: str):
+    conn = procaaso_fns_sdk.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT config_id, config_value FROM configs WHERE config_id = ?",
+        (config_id,),
+    )
+    row = cursor.fetchone()
+    if not row:
         return None
-    return Config(config_id=config.config_id, config_value=config.config_value)
+    return Config(config_id=row[0], config_value=row[1])
