@@ -1,9 +1,9 @@
 {
-  "name": "package",
+  "name": "replace-me-package-name",
   "version": "0.0.1",
-  "homepage": "http://placeholder_homepage.com",
-  "repository_url": "http://placeholder_repo.com",
-  "description": "descriptionVal",
+  "homepage": "http://replace-me-homepage.com",
+  "repository_url": "http://replace-me-repo.com",
+  "description": "replace-me-description",
   "type": "module",
   "keywords": [
     "pilet",
@@ -44,14 +44,14 @@
   "peerModules": [],
   "paracloud": {
     "package": {
-      "name": "paracloudPackageNameVal",
+      "name": "replace-me-paracloud-package-name",
       "tags": {
       }
     },
     "view": {
-      "name": "paracloudViewNameVal",
+      "name": "replace-me-paracloud-view-name",
       "type": "FNS",
-      "description": "paracloudViewDescriptionVal"
+      "description": "replace-me-paracloud-view-description"
     }
   }
 }

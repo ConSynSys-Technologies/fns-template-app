@@ -1,9 +1,9 @@
 {
-  "name": "package",
-  "description": "PACKAGE DESCRIPTION",
+  "name": "replace-me-package-name",
+  "description": "replace-me-description",
   "main": "index.js",
   "type": "module",
-  "repository": "http://placeholder_repo.com",
+  "repository": "http://replace-me-repo.com",
   "author": "ConSynSys <engineering@consynsys.com>",
   "license": "UNLICENSED",
   "private": true,
