@@ -1,21 +1,21 @@
-export type ConfigRequest = {
-    request_value: string;
+export type BoatRequest = {
+    name: string;
 };
 
-export type ConfigResponse = {
-    config_value: string;
+export type BoatResponse = {
+    color: string;
 };
 
-export async function getConfig(apiUrl: string, request: ConfigRequest) {
-    const response = await fetch(`${apiUrl}/config`, {
+export async function getBoat(apiUrl: string, request: BoatRequest) {
+    const response = await fetch(`${apiUrl}/boat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(request),
     });
 
     if (!response.ok) {
-        throw new Error(`getConfig failed: ${response.status} ${response.statusText}`);
+        throw new Error(`getBoat failed: ${response.status} ${response.statusText}`);
     }
 
-    return (await response.json()) as ConfigResponse;
+    return (await response.json()) as BoatResponse;
 }

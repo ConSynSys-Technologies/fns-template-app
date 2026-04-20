@@ -5,7 +5,7 @@ from typing import Callable
 import procaaso_fns_sdk
 from pydantic import BaseModel
 
-from models import Config
+from models import Boat
 
 """
 DEFINE NEW ENDPOINT HANDLER FACTORY FUNCTIONS HERE
@@ -13,43 +13,43 @@ Include any dependencies as parameters to the factory function, and return the h
 All dependencies should be passed in as parameters to the factory function rather than imported directly in this file, to allow for better separation of concerns and easier testing.
 
 Example:
-def new_get_config_handler(
+def new_get_boat_handler(
     logger: Logger,
 ):
-    class ConfigResponse(BaseModel):
-        config_value: str
+    class BoatResponse(BaseModel):
+        color: str
 
-    class ConfigRequest(BaseModel):
-        request_value: str
+    class BoatRequest(BaseModel):
+        name: str
 
-    @procaaso_fns_sdk.authz.auth_context("config", "read")
-    async def give_config_handler(request: fastapi.Request, config_request: ConfigRequest):
+    @procaaso_fns_sdk.authz.auth_context("boat", "read")
+    async def give_boat_handler(request: fastapi.Request, boat_request: BoatRequest):
         \"""
         Include a brief comment on what the function does as well as any oddities in the implementation that future maintainers should be aware of.
         \"""
 
-        return ConfigResponse(config_value="This is the config value")
+        return BoatResponse(color="red")
 
-    return give_config_handler
+    return give_boat_handler
 """
 
 
-def new_get_config_handler(
+def new_get_boat_handler(
     logger: Logger,
-    get_config: Callable[[str], Config | None],
+    get_boat: Callable[[str], Boat | None],
 ):
-    class ConfigResponse(BaseModel):
-        config_value: str
+    class BoatResponse(BaseModel):
+        color: str
 
-    class ConfigRequest(BaseModel):
-        request_value: str
+    class BoatRequest(BaseModel):
+        name: str
 
-    @procaaso_fns_sdk.authz.auth_context("config", "read")
-    async def give_config_handler(request: fastapi.Request, config_request: ConfigRequest):
-        config = get_config(config_request.request_value)
-        if config is None:
-            logger.info(f"No config found for id={config_request.request_value}")
-            raise fastapi.HTTPException(status_code=404, detail="config not found")
-        return ConfigResponse(config_value=config.config_value)
+    @procaaso_fns_sdk.authz.auth_context("boat", "read")
+    async def give_boat_handler(request: fastapi.Request, boat_request: BoatRequest):
+        boat = get_boat(boat_request.name)
+        if boat is None:
+            logger.info(f"No boat found for name={boat_request.name}")
+            raise fastapi.HTTPException(status_code=404, detail="boat not found")
+        return BoatResponse(color=boat.color)
 
-    return give_config_handler
+    return give_boat_handler
