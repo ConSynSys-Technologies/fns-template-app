@@ -1,6 +1,8 @@
 import os
 
 import procaaso_fns_sdk
+from fastapi.middleware.cors import CORSMiddleware
+
 import router_functions
 import db_functions
 import environments
@@ -47,4 +49,17 @@ def app_factory():
 
     new_server = set_up_server(logger)
     fast_api = new_server.create_app()
+
+    if os.getenv("DEV_MODE"):
+        fast_api.add_middleware(
+            CORSMiddleware,
+            allow_origins=["http://localhost:1234"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+        db_functions.run_up_migrations()
+
+    db_functions.seed_configs()
+
     return fast_api

@@ -10,6 +10,9 @@
                 "--factory",
                 "fns:app_factory"
             ],
+            "env": {
+                "DEV_MODE": "1"
+            },
             "jinja": true,
             "justMyCode": false
         },

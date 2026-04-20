@@ -10,8 +10,8 @@
     "fns-project"
   ],
   "dependencies": {
-    "piral-base": "1.4.3",
-    "piral-core": "1.4.3"
+    "piral-base": "^0.14.29",
+    "piral-core": "^0.14.29"
   },
   "proxy": "http://localhost:8000",
   "peerDependencies": {
@@ -24,6 +24,9 @@
   "scripts": {
     "start": "pilet debug --schema v1",
     "build": "pilet build --schema v1"
+  },
+  "engines": {
+    "node": ">=20 <21"
   },
   "main": "dist/index.js",
   "files": [
@@ -46,8 +49,7 @@
   "paracloud": {
     "package": {
       "name": "replace-me-paracloud-package-name",
-      "tags": {
-      }
+      "tags": {}
     },
     "view": {
       "name": "replace-me-paracloud-view-name",
