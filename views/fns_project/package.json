@@ -27,9 +27,6 @@
     "start": "pilet debug --schema v1",
     "build": "pilet build --schema v1"
   },
-  "engines": {
-    "node": ">=20 <21"
-  },
   "main": "dist/index.js",
   "files": [
     "dist"
