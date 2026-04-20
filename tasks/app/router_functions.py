@@ -22,7 +22,7 @@ def new_get_config_handler(
     class ConfigRequest(BaseModel):
         request_value: str
 
-    @procaaso_fns_sdk.authz.auth_context("config")
+    @procaaso_fns_sdk.authz.auth_context("config", "read")
     async def give_config_handler(request: fastapi.Request, config_request: ConfigRequest):
         \"""
         Include a brief comment on what the function does as well as any oddities in the implementation that future maintainers should be aware of.
@@ -44,7 +44,7 @@ def new_get_config_handler(
     class ConfigRequest(BaseModel):
         request_value: str
 
-    @procaaso_fns_sdk.authz.auth_context("config")
+    @procaaso_fns_sdk.authz.auth_context("config", "read")
     async def give_config_handler(request: fastapi.Request, config_request: ConfigRequest):
         config = get_config(config_request.request_value)
         if config is None:
