@@ -15,3 +15,7 @@ class ConfigRow(Base):
 """
 
 
+class ConfigRow(Base):
+    __tablename__ = "configs"
+    config_id = MappedColumn(String, primary_key=True)
+    config_value = MappedColumn(String)

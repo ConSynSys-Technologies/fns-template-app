@@ -1,8 +1,11 @@
 import asyncio
 import fastapi
 from logging import Logger
+from typing import Callable
 import procaaso_fns_sdk
 from pydantic import BaseModel
+
+from models import Config
 
 """
 DEFINE NEW ENDPOINT HANDLER FACTORY FUNCTIONS HERE
@@ -18,7 +21,7 @@ def new_get_config_handler(
 
     class ConfigRequest(BaseModel):
         request_value: str
-    
+
     @procaaso_fns_sdk.authz.auth_context("config")
     async def give_config_handler(request: fastapi.Request, config_request: ConfigRequest):
         \"""
@@ -29,3 +32,24 @@ def new_get_config_handler(
 
     return give_config_handler
 """
+
+
+def new_get_config_handler(
+    logger: Logger,
+    get_config: Callable[[str], Config | None],
+):
+    class ConfigResponse(BaseModel):
+        config_value: str
+
+    class ConfigRequest(BaseModel):
+        request_value: str
+
+    @procaaso_fns_sdk.authz.auth_context("config")
+    async def give_config_handler(request: fastapi.Request, config_request: ConfigRequest):
+        config = get_config(config_request.request_value)
+        if config is None:
+            logger.info(f"No config found for id={config_request.request_value}")
+            raise fastapi.HTTPException(status_code=404, detail="config not found")
+        return ConfigResponse(config_value=config.config_value)
+
+    return give_config_handler
