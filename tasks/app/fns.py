@@ -4,7 +4,7 @@ import db_functions
 from db_connection import setup_db_connection
 
 
-def set_up_server(logger) -> procaaso_fns_sdk.server.Server:
+def set_up_server(logger):
     newServer = procaaso_fns_sdk.server.Server()
     """
     REGISTER NEW ENDPOINTS HERE
