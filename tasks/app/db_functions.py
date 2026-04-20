@@ -22,7 +22,7 @@ DEFINE NEW DATABASE INTERACTION FUNCTIONS HERE
 
 example:
 @db_session_handler
-def get_config(session: Session, config_id: str) -> Config | None:
+def get_config(session: Session, config_id: str):
     config = session.query(ConfigRow).filter_by(config_id=config_id).first()
     if not config:
         return None
@@ -31,7 +31,7 @@ def get_config(session: Session, config_id: str) -> Config | None:
 
 
 @db_session_handler
-def get_config(session: Session, config_id: str) -> Config | None:
+def get_config(session: Session, config_id: str):
     config = session.query(ConfigRow).filter_by(config_id=config_id).first()
     if not config:
         return None
