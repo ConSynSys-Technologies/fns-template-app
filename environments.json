@@ -1,0 +1,10 @@
+{
+  "environments": {
+    "pharma": {
+      "syndiTokenCommand": "syndi auth token -p pharma",
+      "environmentUrl": "https://pharmagenbio.procaaso.io",
+      "devUrl": "https://dev-fpro723bc2d113b048328cceb8c556725d48.fns-tasks.pharmagenbio.procaaso.io"
+    }
+  },
+  "activeEnvironment": "pharma"
+}
