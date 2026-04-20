@@ -3,7 +3,6 @@ name = "package"
 version = "0.0.1"
 description = "description"
 authors = []
-readme = "README.md"
 packages = [
     { include = "app", from = "./"},
 ]
@@ -19,7 +18,7 @@ app = {main = "fns.py", type = "fns_task"}
 [tool.poetry.dependencies]
 python = "^3.11"
 debugpy = "^1.6.6"
-procaaso_fns_sdk = "0.4.4"
+procaaso_fns_sdk = "1.0.0"
 uvicorn = "^0.23.2"
 sqlalchemy = "^2.0.38"
 
