@@ -7,7 +7,7 @@ from models import *
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
-logger = procasso_uns_sdk.logs.get_logger()
+logger = procaaso_fns_sdk.logs.get_logger()
 
 engine: Engine | None = None
 session_maker = None
@@ -30,3 +30,9 @@ def get_config(session: Session, config_id: str) -> Config | None:
 """
 
 
+@db_session_handler
+def get_config(session: Session, config_id: str) -> Config | None:
+    config = session.query(ConfigRow).filter_by(config_id=config_id).first()
+    if not config:
+        return None
+    return Config(config_id=config.config_id, config_value=config.config_value)
