@@ -24,7 +24,7 @@ def set_up_server(logger):
     newServer.register_endpoint(
         route="/config",
         func=router_functions.new_get_config_handler(logger, db_functions.get_config),
-        methods=["GET"],
+        methods=["POST"],
     )
 
     return newServer
