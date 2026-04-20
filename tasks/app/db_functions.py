@@ -3,7 +3,7 @@ from pathlib import Path
 
 import procaaso_fns_sdk
 
-from models import Config
+from models import Boat
 
 MIGRATIONS_DIR = Path(__file__).resolve().parents[2] / "migrations"
 
@@ -13,31 +13,31 @@ logger = procaaso_fns_sdk.logs.get_logger()
 DEFINE NEW DATABASE INTERACTION FUNCTIONS HERE
 
 Example:
-def get_config(config_id: str):
+def get_boat(name: str):
     conn = procaaso_fns_sdk.get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT config_id, config_value FROM configs WHERE config_id = ?",
-        (config_id,),
+        "SELECT name, color FROM boats WHERE name = ?",
+        (name,),
     )
     row = cursor.fetchone()
     if not row:
         return None
-    return Config(config_id=row[0], config_value=row[1])
+    return Boat(name=row[0], color=row[1])
 """
 
 
-def get_config(config_id: str):
+def get_boat(name: str):
     conn = procaaso_fns_sdk.get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT config_id, config_value FROM configs WHERE config_id = ?",
-        (config_id,),
+        "SELECT name, color FROM boats WHERE name = ?",
+        (name,),
     )
     row = cursor.fetchone()
     if not row:
         return None
-    return Config(config_id=row[0], config_value=row[1])
+    return Boat(name=row[0], color=row[1])
 
 
 def run_up_migrations():
@@ -60,15 +60,15 @@ def run_up_migrations():
     connection.close()
 
 
-def seed_configs():
+def seed_boats():
     conn = procaaso_fns_sdk.get_db_connection()
     cursor = conn.cursor()
     seeds = [
-        ("example", "hello from the seeded config"),
+        ("example", "red"),
     ]
     cursor.executemany(
-        "INSERT OR IGNORE INTO configs (config_id, config_value) VALUES (?, ?)",
+        "INSERT OR IGNORE INTO boats (name, color) VALUES (?, ?)",
         seeds,
     )
     conn.commit()
-    logger.info(f"Seeded {len(seeds)} config row(s)")
+    logger.info(f"Seeded {len(seeds)} boat row(s)")

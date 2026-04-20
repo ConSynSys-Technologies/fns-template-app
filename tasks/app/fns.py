@@ -15,16 +15,16 @@ def set_up_server(logger):
     Example:
     ```
     newServer.register_endpoint(
-        route="/config",
-        func=router_functions.new_get_config_handler(logger),
+        route="/boat",
+        func=router_functions.new_get_boat_handler(logger),
         methods=["GET"],
     )
     ```
     """
 
     newServer.register_endpoint(
-        route="/config",
-        func=router_functions.new_get_config_handler(logger, db_functions.get_config),
+        route="/boat",
+        func=router_functions.new_get_boat_handler(logger, db_functions.get_boat),
         methods=["POST"],
     )
 
@@ -60,6 +60,6 @@ def app_factory():
         )
         db_functions.run_up_migrations()
 
-    db_functions.seed_configs()
+    db_functions.seed_boats()
 
     return fast_api
