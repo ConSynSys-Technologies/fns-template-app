@@ -10,8 +10,8 @@
     "fns-project"
   ],
   "dependencies": {
-    "piral-base": "1.4.3",
-    "piral-core": "1.4.3"
+    "piral-base": "^0.14.29",
+    "piral-core": "^0.14.29"
   },
   "proxy": "http://localhost:8000",
   "peerDependencies": {
@@ -25,6 +25,9 @@
     "start": "pilet debug --schema v1",
     "build": "pilet build --schema v1"
   },
+  "engines": {
+    "node": ">=20 <21"
+  },
   "main": "dist/index.js",
   "files": [
     "dist"
@@ -37,16 +40,15 @@
   "devDependencies": {
     "@procaaso/pc-piral-instance": "0.8.4",
     "@procaaso/pc-piral-proto-api": "0.18.1",
-    "piral-cli": "1.4.3",
-    "piral-cli-webpack5": "1.4.3",
+    "piral-cli": "^0.14.29",
+    "piral-cli-webpack5": "^0.14.29",
     "typescript": "latest"
   },
   "peerModules": [],
   "paracloud": {
     "package": {
       "name": "replace-me-paracloud-package-name",
-      "tags": {
-      }
+      "tags": {}
     },
     "view": {
       "name": "replace-me-paracloud-view-name",
