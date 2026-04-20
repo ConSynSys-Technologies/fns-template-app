@@ -1,6 +1,9 @@
+import os
+
 import procaaso_fns_sdk
 import router_functions
 import db_functions
+import environments
 from db_connection import setup_db_connection
 
 
@@ -39,6 +42,9 @@ def app_factory():
     """
 
     logger = procaaso_fns_sdk.logs.get_logger()
+
+    if os.getenv("DEV_MODE"):
+        environments.set_dev_config(logger)
 
     setup_db_connection()
 
