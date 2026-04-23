@@ -1,12 +1,25 @@
 {
   "name": "replace-me-app-name",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "replace-me-description",
   "deployment_resources_size": "small",
   "database_resources_size": "small",
   "settings": {},
-  "permissions": {},
-  "required_permissions": {},
+  "permissions": {
+    "boats": {
+      "read": {
+        "name": "Read boats",
+        "description": "Allows members to read boats",
+        "assignable": "true",
+        "aggregate_limitations": []
+      }
+    }
+  },
+  "required_permissions": {
+    "logging": [
+      "read"
+    ]
+  },
   "deploymentConfiguration": {
     "views": {
       "name": "replace-me-view-name"
