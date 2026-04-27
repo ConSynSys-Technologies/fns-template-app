@@ -1,6 +1,6 @@
 {
   "name": "replace-me-app-name",
-  "version": "0.0.9",
+  "version": "0.0.12",
   "description": "replace-me-description",
   "deployment_resources_size": "small",
   "database_resources_size": "small",
