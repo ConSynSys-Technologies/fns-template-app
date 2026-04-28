@@ -1,3 +1,6 @@
+# Imports here are sibling-style on purpose: at deploy time the contents of
+# `tasks/app/` are placed directly on the runtime path, so `app` is not a
+# package. See README "Backend module layout".
 import os
 
 import procaaso_fns_sdk
