@@ -40,6 +40,9 @@ jobs:
         with:
           registries: 230177812114
 
+      - name: delete fns-template.tgz
+        run: rm -f fns-template.tgz
+
       - name: pull syndi package
         env:
           REGISTRY: 230177812114
@@ -52,39 +55,17 @@ jobs:
               environment: stage.dev" > config
 
           docker pull ${{ env.REGISTRY }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/pc-syndi:${{ env.IMAGE_TAG }}
-          docker run --rm -v $(pwd):/work -w /work ${{ env.REGISTRY }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/pc-syndi:${{ env.IMAGE_TAG }} package /work -c /work/config --output-dir /work
 
-          rm -f config
-      - name: delete fns-template.tgz
-        run: rm -f fns-template.tgz
+          mkdir -p .pack-out
 
-      - name: checkout to the branch that triggered the workflow
-        env:
-          BRANCH: ${{ github.head_ref }}
-        run: |
-          # determine branch: use github.head_ref for pull_request, otherwise derive from GITHUB_REF
-          branch="$BRANCH"
-          if [ -z "$branch" ]; then
-            branch="${GITHUB_REF#refs/heads/}"
-          fi
+          docker run --rm \
+                  -v "$(pwd):/work" \
+                  -w /work \
+                  ${{ env.REGISTRY }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/pc-syndi:${{ env.IMAGE_TAG }} \
+                  package . -c /work/config --output-dir /work/.pack-out
 
-          git config --global user.name "github-actions"
-          git config --global user.email 'github-actions@users.noreply.github.com'
-          git fetch origin "$branch"
-          git checkout "$branch"
-
-      - name: create a new file and rename it to fns-template.tgz
-        run: |
-          output=$(ls -t *.tar.gz 2>/dev/null | head -n 1)
-          filename=$(printf "%s\n" "$output" | grep -oE '[^[:space:]]+\.tar\.gz' | tail -n 1)
-          
-          if [ -z "$filename" ]; then  echo "Could not find tar.gz filename in output"
-            exit 1
-          fi
-
-          echo "Found file: $filename"
-
-          mv $filename fns-template.tgz
+          cp .pack-out/*.tar.gz fns-template.tgz || echo "No tar.gz file found in .pack-out"
+          rm -rf .pack-out config
 
       - name: commit and push changes
         env:
