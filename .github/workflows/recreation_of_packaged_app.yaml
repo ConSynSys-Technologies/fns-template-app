@@ -77,7 +77,7 @@ jobs:
                   -v "$(pwd):/work" \
                   -w /work \
                   ${{ env.REGISTRY }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/pc-syndi:${{ env.IMAGE_TAG }} \
-                  package . -c /work/config --output-dir /work/.pack-out
+                  package /work -c /work/config --output-dir /work/.pack-out
 
           cp .pack-out/*.tar.gz fns-template.tgz || echo "No tar.gz file found in .pack-out"
           rm -rf .pack-out config
