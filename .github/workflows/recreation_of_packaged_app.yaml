@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - release/*
+      - feat/PRFR6135/github_action_to_build_fns_package
 
 permissions:
   id-token: write   
@@ -24,6 +25,10 @@ jobs:
           role-to-assume: arn:aws:iam::263704316862:role/IacCommonGithubActionsRole
           aws-region: us-west-2
           role-session-name: MySessionName
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
     
       - name: pull syndi package
         env:
