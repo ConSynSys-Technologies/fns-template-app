@@ -58,6 +58,21 @@ jobs:
       - name: delete fns-template.tgz
         run: rm -f fns-template.tgz
 
+      - name: checkout to the branch that triggered the workflow
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          # determine branch: use github.head_ref for pull_request, otherwise derive from GITHUB_REF
+          branch="$BRANCH"
+          if [ -z "$branch" ]; then
+            branch="${GITHUB_REF#refs/heads/}"
+          fi
+
+          git config --global user.name "github-actions"
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          git fetch origin "$branch"
+          git checkout "$branch"
+
       - name: create a new file and rename it to fns-template.tgz
         run: |
           output=$(ls -t *.tar.gz 2>/dev/null | head -n 1)
@@ -75,14 +90,6 @@ jobs:
         env:
           BRANCH: ${{ github.head_ref }}
         run: |
-          # determine branch: use github.head_ref for pull_request, otherwise derive from GITHUB_REF
-          branch="$BRANCH"
-          if [ -z "$branch" ]; then
-            branch="${GITHUB_REF#refs/heads/}"
-          fi
-
-          git config --global user.name "github-actions"
-          git config --global user.email 'github-actions@users.noreply.github.com'
           git add .
           git commit -m "recreated packaged app - github action" || echo "no changes to commit"
 
