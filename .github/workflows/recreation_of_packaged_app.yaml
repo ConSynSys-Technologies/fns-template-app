@@ -4,11 +4,11 @@ on:
     branches:
       - main
       - release/*
+      - feat/PRFR6135/github_action_to_build_fns_package
 
-# Permission can be added at job level or workflow level
 permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
+  id-token: write   
+  contents: write    # This is required for actions/checkout
 
 jobs:
   DockerBuild:
@@ -22,12 +22,26 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6.0.0
         with:
-          role-to-assume: arn:aws:iam::263704316862:role/IacCommonGithubActionsRole
+          role-to-assume: arn:aws:iam::263704316862:role/ExtraServicesGithubActionsRole
           aws-region: us-west-2
           role-session-name: MySessionName
-    
+
+      - name: Configure other AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.0.0
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::230177812114:role/ExtraServicesRepositoryPullPusher
+          role-chaining: true
+          role-skip-session-tagging: true
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: 230177812114
+
       - name: pull syndi package
-         env:
+        env:
           REGISTRY: 230177812114
           AWS_REGION: us-west-2
           IMAGE_TAG: latest
@@ -58,9 +72,19 @@ jobs:
           mv $filename fns-template.tgz
 
       - name: commit and push changes
+        env:
+          BRANCH: ${{ github.head_ref }}
         run: |
+          # determine branch: use github.head_ref for pull_request, otherwise derive from GITHUB_REF
+          branch="$BRANCH"
+          if [ -z "$branch" ]; then
+            branch="${GITHUB_REF#refs/heads/}"
+          fi
+
           git config --global user.name "github-actions"
           git config --global user.email 'github-actions@users.noreply.github.com'
-          git add . 
-          git commit -m "recreated packaged app"
-          git push
+          git add .
+          git commit -m "recreated packaged app" || echo "no changes to commit"
+
+          # push current HEAD to the same branch
+          git push origin "HEAD:${branch}"
