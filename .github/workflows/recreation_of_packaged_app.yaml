@@ -90,8 +90,14 @@ jobs:
         env:
           BRANCH: ${{ github.head_ref }}
         run: |
+          # determine branch: use github.head_ref for pull_request, otherwise derive from GITHUB_REF
+          branch="$BRANCH"
+          if [ -z "$branch" ]; then
+            branch="${GITHUB_REF#refs/heads/}"
+          fi
+
           git add .
           git commit -m "recreated packaged app - github action" || echo "no changes to commit"
 
           # push current HEAD to the same branch
-          git push origin "HEAD:${branch}"
+          git push origin "${branch}"
