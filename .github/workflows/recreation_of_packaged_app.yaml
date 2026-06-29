@@ -22,7 +22,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6.0.0
         with:
-          role-to-assume: arn:aws:iam::263704316862:role/IacCommonGithubActionsRole
+          role-to-assume: arn:aws:iam::263704316862:role/ExtraServicesGithubActionsRole
           aws-region: us-west-2
           role-session-name: MySessionName
 
@@ -30,7 +30,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v6.0.0
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::230177812114:role/IacCommonRepositoryPusher
+          role-to-assume: arn:aws:iam::230177812114:role/ExtraServicesRepositoryPullPusher
           role-chaining: true
           role-skip-session-tagging: true
 
@@ -77,9 +77,6 @@ jobs:
         run: |
           # determine branch: use github.head_ref for pull_request, otherwise derive from GITHUB_REF
           branch="$BRANCH"
-          if [ -z "$branch" ]; then
-            branch="${GITHUB_REF#refs/heads/}"
-          fi
 
           git config --global user.name "github-actions"
           git config --global user.email 'github-actions@users.noreply.github.com'
