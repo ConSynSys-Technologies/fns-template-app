@@ -40,6 +40,21 @@ jobs:
         with:
           registries: 230177812114
 
+      - name: checkout to the branch that triggered the workflow
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          # determine branch: use github.head_ref for pull_request, otherwise derive from GITHUB_REF
+          branch="$BRANCH"
+          if [ -z "$branch" ]; then
+            branch="${GITHUB_REF#refs/heads/}"
+          fi
+
+          git config --global user.name "github-actions"
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          git fetch origin "$branch"
+          git checkout "$branch"
+
       - name: delete fns-template.tgz
         run: rm -f fns-template.tgz
 
