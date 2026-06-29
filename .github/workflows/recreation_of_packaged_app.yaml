@@ -8,7 +8,7 @@ on:
 
 permissions:
   id-token: write   
-  contents: read    # This is required for actions/checkout
+  contents: write    # This is required for actions/checkout
 
 jobs:
   DockerBuild:
@@ -77,6 +77,9 @@ jobs:
         run: |
           # determine branch: use github.head_ref for pull_request, otherwise derive from GITHUB_REF
           branch="$BRANCH"
+          if [ -z "$branch" ]; then
+            branch="${GITHUB_REF#refs/heads/}"
+          fi
 
           git config --global user.name "github-actions"
           git config --global user.email 'github-actions@users.noreply.github.com'
