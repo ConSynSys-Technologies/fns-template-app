@@ -86,7 +86,7 @@ jobs:
           ARCHIVE=$(ls .pack-out/*.tar.gz)
           mkdir -p .repack-tmp
           tar xzf "$ARCHIVE" -C .repack-tmp --strip-components=1
-          tar czf fns-template.tgz -C .repack-tmp $(ls -A .repack-tmp)
+          tar czf fns-template.tgz -C .repack-tmp README.md pc2.json LICENSE migrations tasks views
           rm -rf .repack-tmp .pack-out config
 
       - name: commit and push changes
