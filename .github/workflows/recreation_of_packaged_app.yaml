@@ -80,16 +80,14 @@ jobs:
                   package /work -c /work/config --output-dir /work/.pack-out
 
           # syndi always wraps contents in a top-level directory; strip it so the
-          # archive root matches the repo root (migrations/, tasks/, views/, ...)
+          # archive root matches the repo root (migrations/, tasks/, views/, ...).
+          # Write directly to fns-template.tgz to avoid overwriting the root-owned
+          # Docker output file.
           ARCHIVE=$(ls .pack-out/*.tar.gz)
-          ARCHIVE_NAME=$(basename "$ARCHIVE")
           mkdir -p .repack-tmp
           tar xzf "$ARCHIVE" -C .repack-tmp --strip-components=1
-          tar czf ".pack-out/$ARCHIVE_NAME" -C .repack-tmp $(ls -A .repack-tmp)
-          rm -rf .repack-tmp
-
-          cp .pack-out/*.tar.gz fns-template.tgz || echo "No tar.gz file found in .pack-out"
-          rm -rf .pack-out config
+          tar czf fns-template.tgz -C .repack-tmp $(ls -A .repack-tmp)
+          rm -rf .repack-tmp .pack-out config
 
       - name: commit and push changes
         env:
