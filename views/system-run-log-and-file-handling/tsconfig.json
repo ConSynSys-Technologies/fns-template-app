@@ -5,6 +5,7 @@
     "skipLibCheck": true,
     "lib": ["dom", "es2018"],
     "module": "esnext",
+    "moduleResolution": "node",
     "jsx": "react",
     "importHelpers": true,
     "strict": true,

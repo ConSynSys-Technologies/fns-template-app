@@ -47,7 +47,7 @@
     "piral-cli": "1.4.3",
     "piral-cli-webpack5": "1.4.3",
     "raw-loader": "^4.0.2",
-    "typescript": "latest"
+    "typescript": "^4.5.4"
   },
   "peerModules": [],
   "paracloud": {
