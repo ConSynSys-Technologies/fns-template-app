@@ -5,8 +5,6 @@ import procaaso_fns_sdk
 
 from models import Boat
 
-MIGRATIONS_DIR = Path(__file__).resolve().parents[2] / "migrations"
-
 logger = procaaso_fns_sdk.logs.get_logger()
 
 """
@@ -42,6 +40,7 @@ def get_boat(name: str):
 
 def run_up_migrations():
     logger.info("Running up migrations...")
+    MIGRATIONS_DIR = Path(__file__).resolve().parents[2] / "migrations"
     connection = procaaso_fns_sdk.get_db_connection()
     cursor = connection.cursor()
     migration_files = os.listdir(MIGRATIONS_DIR)
