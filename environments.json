@@ -4,7 +4,12 @@
       "syndiTokenCommand": "syndi auth token -p pharma",
       "environmentUrl": "https://pharmagenbio.procaaso.io",
       "devUrl": "https://dev-fpro723bc2d113b048328cceb8c556725d48.fns-tasks.pharmagenbio.procaaso.io"
+    },
+    "sartorius": {
+      "syndiTokenCommand": "syndi auth token -p sartorius",
+      "environmentUrl": "https://sartorius.procaaso.io",
+      "devUrl": "https://dev-fprod287d0634d3b473bb2f1a39f348251ba.fns-tasks.sartorius.procaaso.io"
     }
   },
-  "activeEnvironment": "pharma"
+  "activeEnvironment": "sartorius"
 }
