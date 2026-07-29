@@ -16,7 +16,7 @@ priority = "supplemental"
 app = {main = "fns.py", type = "fns_task"}
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.11"
 simple-pid = "^1.0.1"
 procaaso-fns-sdk = "^1.0.1"
 cpppo = "^4.4.2"
