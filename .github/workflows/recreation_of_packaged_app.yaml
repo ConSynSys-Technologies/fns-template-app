@@ -5,10 +5,9 @@ on:
       - main
       - release/*
 
-# Permission can be added at job level or workflow level
 permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
+  id-token: write   
+  contents: write    # This is required for actions/checkout
 
 jobs:
   DockerBuild:
@@ -22,12 +21,44 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6.0.0
         with:
-          role-to-assume: arn:aws:iam::263704316862:role/IacCommonGithubActionsRole
+          role-to-assume: arn:aws:iam::263704316862:role/ExtraServicesGithubActionsRole
           aws-region: us-west-2
           role-session-name: MySessionName
-    
+
+      - name: Configure other AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.0.0
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::230177812114:role/ExtraServicesRepositoryPullPusher
+          role-chaining: true
+          role-skip-session-tagging: true
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: 230177812114
+
+      - name: checkout to the branch that triggered the workflow
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          # determine branch: use github.head_ref for pull_request, otherwise derive from GITHUB_REF
+          branch="$BRANCH"
+          if [ -z "$branch" ]; then
+            branch="${GITHUB_REF#refs/heads/}"
+          fi
+
+          git config --global user.name "github-actions"
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          git fetch origin "$branch"
+          git checkout "$branch"
+
+      - name: delete fns-template.tgz
+        run: rm -f fns-template.tgz
+
       - name: pull syndi package
-         env:
+        env:
           REGISTRY: 230177812114
           AWS_REGION: us-west-2
           IMAGE_TAG: latest
@@ -38,29 +69,37 @@ jobs:
               environment: stage.dev" > config
 
           docker pull ${{ env.REGISTRY }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/pc-syndi:${{ env.IMAGE_TAG }}
-          docker run --rm -v $(pwd):/work -w /work ${{ env.REGISTRY }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/pc-syndi:${{ env.IMAGE_TAG }} package /work -c /work/config --output-dir /work
 
-          rm -f config
-      - name: delete fns-template.tgz
-        run: rm -f fns-template.tgz
+          mkdir -p .pack-out
 
-      - name: create a new file and rename it to fns-template.tgz
-        run: |
-          output=$(ls -t *.tar.gz 2>/dev/null | head -n 1)
-          filename=$(printf "%s\n" "$output" | grep -oE '[^[:space:]]+\.tar\.gz' | tail -n 1)
-          
-          if [ -z "$filename" ]; then  echo "Could not find tar.gz filename in output"
-            exit 1
-          fi
+          docker run --rm \
+                  -v "$(pwd):/work" \
+                  -w /work \
+                  ${{ env.REGISTRY }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/pc-syndi:${{ env.IMAGE_TAG }} \
+                  package /work -c /work/config --output-dir /work/.pack-out
 
-          echo "Found file: $filename"
-
-          mv $filename fns-template.tgz
+          # syndi always wraps contents in a top-level directory; strip it so the
+          # archive root matches the repo root (migrations/, tasks/, views/, ...).
+          # Write directly to fns-template.tgz to avoid overwriting the root-owned
+          # Docker output file.
+          ARCHIVE=$(ls .pack-out/*.tar.gz)
+          mkdir -p .repack-tmp
+          tar xzf "$ARCHIVE" -C .repack-tmp --strip-components=1
+          tar czf fns-template.tgz -C .repack-tmp README.md pc2.json LICENSE migrations tasks views
+          rm -rf .repack-tmp .pack-out config
 
       - name: commit and push changes
+        env:
+          BRANCH: ${{ github.head_ref }}
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email 'github-actions@users.noreply.github.com'
-          git add . 
-          git commit -m "recreated packaged app"
-          git push
+          # determine branch: use github.head_ref for pull_request, otherwise derive from GITHUB_REF
+          branch="$BRANCH"
+          if [ -z "$branch" ]; then
+            branch="${GITHUB_REF#refs/heads/}"
+          fi
+
+          git add .
+          git commit -m "recreated packaged app - github action" || echo "no changes to commit"
+
+          # push current HEAD to the same branch
+          git push origin "${branch}"
