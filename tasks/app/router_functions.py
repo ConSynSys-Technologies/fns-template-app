@@ -44,7 +44,7 @@ def new_get_boat_handler(
     class BoatRequest(BaseModel):
         name: str
 
-    @procaaso_fns_sdk.authz.auth_context("boat", "read")
+    @procaaso_fns_sdk.authz.auth_context("boats", "read")
     async def give_boat_handler(request: fastapi.Request, boat_request: BoatRequest):
         boat = get_boat(boat_request.name)
         if boat is None:
