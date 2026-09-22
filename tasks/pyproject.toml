@@ -18,7 +18,7 @@ app = {main = "fns.py", type = "fns_task"}
 [tool.poetry.dependencies]
 python = "^3.11"
 simple-pid = "^1.0.1"
-procaaso-fns-sdk = "^1.0.1"
+procaaso-fns-sdk = "^1.0.2"
 cpppo = "^4.4.2"
 python-statemachine = "^0.8.0"
 slackclient = "^2.9.4"
