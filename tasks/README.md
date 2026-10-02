@@ -77,10 +77,50 @@ last_days: int
 ```
 
 ## Reaching other services
-You can reach other services like ubiety, stream, control, structure via the sdk.\
-An example of this can be seen from the function `get_info_for_fns_package`.\
-The comment of the sdk function `procaaso_fns_sdk.contact_service` will give you\
-further insight how it works.
+Use `procaaso_fns_sdk.contact_service` to contact services such as Ubiety, Stream,
+Control, and Structure. Pass the service, its relative endpoint path, and the HTTP
+method.
+
+GET requests do not require an auth token or the `request` argument:
+
+```python
+response = await procaaso_fns_sdk.contact_service(
+    procaaso_fns_sdk.Service.STRUCTURE,
+    f"systems/{id}",
+    method="GET",
+)
+```
+
+The auth token is required only for non-GET requests, such as POST, PATCH and PUT.
+Pass the incoming `fastapi.Request` using `request=request` so the SDK
+can forward the caller's auth token. Use `json` to send a JSON payload when needed.
+
+For example, `change_running_mode` updates a system's operation mode:
+
+```python
+async def change_running_mode(request: fastapi.Request, id: str, data: dict):
+    response = await procaaso_fns_sdk.contact_service(
+        procaaso_fns_sdk.Service.STRUCTURE,
+        f"systems/{id}",
+        method="PATCH",
+        request=request,
+        json=data,
+    )
+
+    if response.status_code == 204:
+        return fastapi.Response(status_code=204)
+
+    return fastapi.responses.JSONResponse(
+        content=response.json(), status_code=response.status_code
+    )
+```
+
+For this PATCH request, `data` is `{"operationMode": "BATCH_BASED"}`. The supported
+modes are `BATCH_BASED`, `CONTINUOUS`, and `S88_BATCH_BASED`.
+
+See `get_info_for_system`, `get_info_for_fns_package`, and `change_running_mode` in
+`app/fns.py` for examples, and the `procaaso_fns_sdk.contact_service` docstring for
+more details.
 
 ## File handling
 You can upload/download/list/delete/batch-delete files via functions provided by this sdk.\
