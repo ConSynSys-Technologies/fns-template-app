@@ -3,7 +3,14 @@ import {
   TextField,
   InputAdornment,
   Autocomplete,
+  Alert,
+  Button,
+  Box,
+  MenuItem,
+  DialogActions,
+  Typography,
 } from "@mui/material";
+import Dialog from '../common/Dialog';
 
 interface AppProps {
   apiUrl: string;
@@ -14,10 +21,8 @@ interface TableRow {
   [key: number]: string | number;
 }
 
-interface NamesIDs {
-  "All systems": string;
-  [key: string]: string;
-}
+const operationModes = ['BATCH_BASED', 'CONTINUOUS', 'S88_BATCH_BASED'] as const;
+type OperationMode = typeof operationModes[number];
 
 const StatusTable = ({ data, allSystemIDsNames }: { data: TableRow[], allSystemIDsNames: Record<string, string> }) => {
   return (
@@ -42,16 +47,47 @@ const StatusTable = ({ data, allSystemIDsNames }: { data: TableRow[], allSystemI
 
 export default function MySystemForm({ apiUrl, setHasMissingPermissions }: AppProps) {
   const [systemID, setSystemID] = useState<string>('');
-  const [systemName, setSystemName] = useState<string>('');
   const [limit, setLimit] = useState<number>(20);
   const [tableData, setTableData] = useState<TableRow[]>([]);
   const [allSystemIDsNames, setAllSystemIDsNames] = useState<Record<string, string>>({});
+  const [operationMode, setOperationMode] = useState<OperationMode>('BATCH_BASED');
+  const [showModeForm, setShowModeForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<{ severity: 'success' | 'error'; text: string } | null>(null);
 
-  const handleChange = (nameWithID: string | null) => {
-    if (!nameWithID) return null;
-    const [name, id] = nameWithID.split(' - ');
-    setSystemName(name);
-    setSystemID(id);
+  const handleChangeRunningMode = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!systemID || isSaving) return;
+
+    setIsSaving(true);
+    setMessage(null);
+    try {
+      const response = await fetch(`${apiUrl}/system/${encodeURIComponent(systemID)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ operationMode }),
+        mode: 'cors',
+        credentials: 'include',
+      });
+
+      if (response.status === 403) {
+        setHasMissingPermissions(true);
+        return;
+      }
+
+      // The endpoint may return an empty success response or a JSON service error.
+      const data = await response.json().catch(() => null);
+      if (!response.ok || data?.error) {
+        throw new Error(typeof data?.error === 'string' ? data.error : 'Failed to change running mode. Please try again.');
+      }
+
+      setShowModeForm(false);
+      setMessage({ severity: 'success', text: `Running mode changed to ${operationMode}.` });
+    } catch (e) {
+      setMessage({ severity: 'error', text: e instanceof Error ? e.message : 'Failed to change running mode. Please try again.' });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const getSystemData = async ({ systemID, limit }: { systemID: string, limit: number }) => {
@@ -96,40 +132,42 @@ export default function MySystemForm({ apiUrl, setHasMissingPermissions }: AppPr
     return () => clearInterval(intervalId);
   }, [systemID, limit]);
 
-  useEffect(() => {
-    const fetchAllSystemIDs = async () => {
-      try {
-        const url = `${window.location.protocol}//${window.location.hostname}/api/structure/v1/systems`
-        const response = await fetch(url, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          mode: 'cors',
-          credentials: 'include',
-        });
+  const fetchAllSystemIDs = async () => {
+    try {
+      const url = `${window.location.protocol}//${window.location.hostname}/api/structure/v1/systems`
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        mode: 'cors',
+        credentials: 'include',
+      });
 
-        const data = await response.json();
-        const namesIDs: NamesIDs = { "All systems": "All Systems" };
+      const data = await response.json();
+      const namesIDs: Record<string, string> = {};
 
-        data.forEach((item: { id: string; name: string }) => {
-          namesIDs[item.id] = item.name;
-        })
+      data.forEach((item: { id: string; name: string }) => {
+        namesIDs[item.id] = item.name;
+      })
 
-        setAllSystemIDsNames(namesIDs);
-      } catch (e) {
-        console.error('Failed to fetch files:', e);
-      }
+      setAllSystemIDsNames(namesIDs);
+    } catch (e) {
+      console.error('Failed to fetch files:', e);
     }
+  }
 
+  useEffect(() => {
     fetchAllSystemIDs();
   }, []);
 
   return (
     <>
+      {message && !showModeForm && <Alert severity={message.severity} sx={{ mb: 2 }}>{message.text}</Alert>}
       <Autocomplete
-        options={Object.keys(allSystemIDsNames).map((key) => allSystemIDsNames[key] + " - " + key)}
-        value={systemName + " - " + systemID}
-        defaultValue={"All Systems"}
-        onChange={(_, newValue) => { handleChange(newValue) }}
+        options={['', ...Object.keys(allSystemIDsNames)]}
+        getOptionLabel={(id) => id ? `${allSystemIDsNames[id]} - ${id}` : 'All systems'}
+        value={systemID}
+        disabled={isSaving}
+        onChange={(_, newValue) => { setSystemID(newValue || ''); setMessage(null); }}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -146,6 +184,43 @@ export default function MySystemForm({ apiUrl, setHasMissingPermissions }: AppPr
           />
         )}
       />
+      <Button
+        variant="outlined"
+        sx={{ mt: 2 }}
+        disabled={!systemID || isSaving}
+        onClick={() => { setMessage(null); setShowModeForm(true); }}
+      >
+        Change running mode
+      </Button>
+      {showModeForm && (
+        <Dialog onClose={() => { if (!isSaving) setShowModeForm(false); }}>
+          <Box component="form" onSubmit={handleChangeRunningMode}>
+            <Typography variant="h6" component="h2">Change running mode</Typography>
+            {message && <Alert severity={message.severity} sx={{ mt: 2 }}>{message.text}</Alert>}
+            <Typography sx={{ mt: 2 }}>
+              {allSystemIDsNames[systemID]} ({systemID})
+            </Typography>
+            <TextField
+              select
+              label="Operation mode"
+              value={operationMode}
+              onChange={(event) => setOperationMode(event.target.value as OperationMode)}
+              fullWidth
+              margin="normal"
+              disabled={isSaving}
+              SelectProps={{ MenuProps: { disablePortal: true } }}
+            >
+              {operationModes.map(mode => <MenuItem key={mode} value={mode}>{mode}</MenuItem>)}
+            </TextField>
+            <DialogActions>
+              <Button disabled={isSaving} onClick={() => setShowModeForm(false)}>Cancel</Button>
+              <Button variant="contained" type="submit" disabled={!systemID || isSaving}>
+                {isSaving ? 'Saving…' : 'Save mode'}
+              </Button>
+            </DialogActions>
+          </Box>
+        </Dialog>
+      )}
 
       <div style={{ marginBottom: '10px' }} />
       <TextField

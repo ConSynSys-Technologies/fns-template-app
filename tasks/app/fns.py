@@ -236,6 +236,27 @@ async def get_info_for_system(
     return response.json()
 
 
+async def change_running_mode(
+    request: fastapi.Request,
+    id: str,
+    data: dict,
+):
+    response = await procaaso_fns_sdk.contact_service(
+        procaaso_fns_sdk.Service.STRUCTURE,
+        f"systems/{id}",
+        method="PATCH",
+        request=request,
+        data=data,
+    )
+
+    if response.status_code == 204:
+        return fastapi.Response(status_code=204)
+
+    return fastapi.responses.JSONResponse(
+        content=response.json(), status_code=response.status_code
+    )
+
+
 def set_up_server() -> procaaso_fns_sdk.server.Server:
     new_server = procaaso_fns_sdk.server.Server()
     new_server.register_endpoint(
@@ -252,6 +273,11 @@ def set_up_server() -> procaaso_fns_sdk.server.Server:
         route="/system/{id}",
         func=get_info_for_system,
         methods=["GET"],
+    )
+    new_server.register_endpoint(
+        route="/system/{id}",
+        func=change_running_mode,
+        methods=["PATCH"],
     )
     new_server.register_endpoint(
         route="/root/{root}/limit/{limit}", func=get_events_by_root, methods=["GET"]
@@ -284,7 +310,7 @@ def app_factory():
     # example on how to set up the DEV CONFIG
     # procaaso_fns_sdk.set_dev_config(
     #     dev_url="http://localhost:8080",
-    #     dev_token="dev_token",
+    #     dev_token="",
     # )
 
     return new_server.create_app(set_up_subscriber())
