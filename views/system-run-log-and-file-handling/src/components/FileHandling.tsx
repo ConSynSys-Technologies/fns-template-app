@@ -9,6 +9,7 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
+import { decodeBase64, multipartFileBody, proxyResult } from "../shellApi";
 
 interface AppProps {
   apiUrl: string;
@@ -42,19 +43,15 @@ export default function FileHandling({ apiUrl, setHasMissingPermissions }: AppPr
   const fetchFiles = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/storage/list`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        mode: 'cors',
-        credentials: 'include',
-      });
+      const response = await proxyResult(`${apiUrl}/storage/list`);
 
       if (response.status === 403) {
         setHasMissingPermissions(true);
         return;
       }
+      if (!response.ok) throw new Error(response.error || "Failed to fetch files.");
 
-      const data: FileListResponse = await response.json();
+      const data = response.data as FileListResponse;
       if (data.objects && Array.isArray(data.objects)) {
         setFiles(data.objects.map((obj: FileObject) => ({ key: obj.name, ...obj })));
       } else {
@@ -82,13 +79,11 @@ export default function FileHandling({ apiUrl, setHasMissingPermissions }: AppPr
   const handleDownload = async (key: string) => {
     setMessage(null);
     try {
-      const resp = await fetch(`${apiUrl}/storage/download/${encodeURIComponent(key)}`, {
-        method: "GET",
-        mode: 'cors',
-        credentials: 'include',
+      const resp = await proxyResult(`${apiUrl}/storage/download/${encodeURIComponent(key)}`, {
+        responseType: "base64",
       });
-      if (resp.ok) {
-        const blob = await resp.blob();
+      if (resp.ok && typeof resp.data === "string") {
+        const blob = new Blob([decodeBase64(resp.data)]);
         const url = window.URL.createObjectURL(blob);
         const downloadLink = document.createElement("a");
         downloadLink.href = url;
@@ -111,12 +106,10 @@ export default function FileHandling({ apiUrl, setHasMissingPermissions }: AppPr
   const handleDelete = async (key: string) => {
     setMessage(null);
     try {
-      const resp = await fetch(`${apiUrl}/storage/delete/${encodeURIComponent(key)}`, {
+      const resp = await proxyResult(`${apiUrl}/storage/delete/${encodeURIComponent(key)}`, {
         method: "DELETE",
-        mode: 'cors',
-        credentials: 'include',
       });
-      const data = await resp.json();
+      const data = (resp.data || {}) as { error?: string };
       if (resp.ok) {
         setMessage("File deleted.");
         fetchFiles();
@@ -133,14 +126,11 @@ export default function FileHandling({ apiUrl, setHasMissingPermissions }: AppPr
   const handleBatchDelete = async () => {
     setMessage(null);
     try {
-      const resp = await fetch(`${apiUrl}/storage/batchDelete`, {
+      const resp = await proxyResult(`${apiUrl}/storage/batchDelete`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        mode: 'cors',
-        credentials: 'include',
-        body: JSON.stringify({ names: selected }),
+        body: { names: selected },
       });
-      const data = await resp.json();
+      const data = (resp.data || {}) as { error?: string };
       if (resp.ok) {
         setMessage("Files deleted.");
         setSelected([]);
@@ -160,16 +150,17 @@ export default function FileHandling({ apiUrl, setHasMissingPermissions }: AppPr
     setIsUploading(true);
     setMessage(null);
     try {
-      const formData = new FormData();
-      formData.append("file", new Blob([await uploadFile.arrayBuffer()], { type: uploadFile.type }), encodeURIComponent(uploadFile.name));
-
-      const resp = await fetch(`${apiUrl}/storage`, {
+      const fileBody = multipartFileBody(
+        encodeURIComponent(uploadFile.name),
+        uploadFile.type,
+        new Uint8Array(await uploadFile.arrayBuffer()),
+      );
+      const resp = await proxyResult(`${apiUrl}/storage`, {
         method: "PUT",
-        mode: 'cors',
-        credentials: 'include',
-        body: formData,
+        headers: { "Content-Type": fileBody.contentType },
+        body: fileBody.body,
       });
-      const data = await resp.json();
+      const data = (resp.data || {}) as { status?: string; error?: string };
       if (resp.ok) {
         var message = data.status;
         if (data.error) {

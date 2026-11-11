@@ -11,9 +11,11 @@ import {
   Typography,
 } from "@mui/material";
 import Dialog from '../common/Dialog';
+import { proxyResult, requestShellOperation, ShellApi } from '../shellApi';
 
 interface AppProps {
   apiUrl: string;
+  app: ShellApi;
   setHasMissingPermissions: (newValue: boolean) => void;
 }
 
@@ -45,7 +47,7 @@ const StatusTable = ({ data, allSystemIDsNames }: { data: TableRow[], allSystemI
   );
 };
 
-export default function MySystemForm({ apiUrl, setHasMissingPermissions }: AppProps) {
+export default function MySystemForm({ apiUrl, app, setHasMissingPermissions }: AppProps) {
   const [systemID, setSystemID] = useState<string>('');
   const [limit, setLimit] = useState<number>(20);
   const [tableData, setTableData] = useState<TableRow[]>([]);
@@ -62,12 +64,9 @@ export default function MySystemForm({ apiUrl, setHasMissingPermissions }: AppPr
     setIsSaving(true);
     setMessage(null);
     try {
-      const response = await fetch(`${apiUrl}/system/${encodeURIComponent(systemID)}`, {
+      const response = await proxyResult(`${apiUrl}/system/${encodeURIComponent(systemID)}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ operationMode }),
-        mode: 'cors',
-        credentials: 'include',
+        body: { operationMode },
       });
 
       if (response.status === 403) {
@@ -75,10 +74,9 @@ export default function MySystemForm({ apiUrl, setHasMissingPermissions }: AppPr
         return;
       }
 
-      // The endpoint may return an empty success response or a JSON service error.
-      const data = await response.json().catch(() => null);
+      const data = response.data as { error?: string } | null;
       if (!response.ok || data?.error) {
-        throw new Error(typeof data?.error === 'string' ? data.error : 'Failed to change running mode. Please try again.');
+        throw new Error(typeof data?.error === 'string' ? data.error : response.error || 'Failed to change running mode. Please try again.');
       }
 
       setShowModeForm(false);
@@ -100,20 +98,14 @@ export default function MySystemForm({ apiUrl, setHasMissingPermissions }: AppPr
         ? `${apiUrl}/system/all/limit/${limit}`
         : `${apiUrl}/system/${systemID}/limit/${limit}`;
 
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        mode: 'cors',
-        credentials: 'include',
-      });
+      const response = await proxyResult(url, { timeoutMs: 1500 });
 
       if (response.status === 403) {
         setHasMissingPermissions(true);
         return;
       }
 
-      const data = await response.json();
-      setTableData(data);
+      if (response.ok) setTableData(response.data as TableRow[]);
     } catch (e) {
       console.error('Failed to fetch files:', e);
     }
@@ -134,18 +126,13 @@ export default function MySystemForm({ apiUrl, setHasMissingPermissions }: AppPr
 
   const fetchAllSystemIDs = async () => {
     try {
-      const url = `${window.location.protocol}//${window.location.hostname}/api/structure/v1/systems`
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        mode: 'cors',
-        credentials: 'include',
-      });
-
-      const data = await response.json();
+      const data = await requestShellOperation<Array<{ id: string; name: string }>>(
+        app,
+        'getSystems',
+      );
       const namesIDs: Record<string, string> = {};
 
-      data.forEach((item: { id: string; name: string }) => {
+      data.forEach((item) => {
         namesIDs[item.id] = item.name;
       })
 
@@ -157,7 +144,7 @@ export default function MySystemForm({ apiUrl, setHasMissingPermissions }: AppPr
 
   useEffect(() => {
     fetchAllSystemIDs();
-  }, []);
+  }, [app]);
 
   return (
     <>
