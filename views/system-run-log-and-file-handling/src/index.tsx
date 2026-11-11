@@ -2,15 +2,17 @@ import * as React from 'react';
 import { PiletApi } from '@procaaso/pc-piral-instance';
 import App from './App';
 import styles from './styles/style.scss';
+import { setShellApp } from './shellApi';
 
 export function setup(app: PiletApi) {
+  setShellApp(app);
   const value = app.getData('data');
 
   if (!value?.apiUrl) {
     throw new Error('apiUrl is empty');
   }
 
-  app.registerPage('/*', () => <App apiUrl={value?.apiUrl} styles={[styles.toString()]} />);
+  app.registerPage('/*', () => <App apiUrl={value?.apiUrl} app={app} styles={[styles.toString()]} />);
 
 
   // Uncoment the following lines to test locally

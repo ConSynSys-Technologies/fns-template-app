@@ -5,12 +5,14 @@ import {
 import MySystemForm from './components/SystemStatusTable'
 import FileHandling from './components/FileHandling';
 import withShadowDOM from "./shadow/withShadowDOM";
+import { ShellApi } from "./shellApi";
 
 interface AppProps {
   apiUrl: string;
+  app: ShellApi;
 }
 
-const App: React.FC<AppProps> = ({ apiUrl }) => {
+const App: React.FC<AppProps> = ({ apiUrl, app }) => {
   const [showFileHandling, setShowFileHandling] = useState(false);
   const [hasMissingPermissions, setHasMissingPermissions] = useState(false);
 
@@ -47,6 +49,7 @@ const App: React.FC<AppProps> = ({ apiUrl }) => {
           <h1>System run log</h1>
           <MySystemForm
             apiUrl={apiUrl}
+            app={app}
             setHasMissingPermissions={setHasMissingPermissions}
           />
         </>
