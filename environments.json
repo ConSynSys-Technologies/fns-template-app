@@ -14,7 +14,12 @@
       "syndiTokenCommand": "syndi auth token -p default",
       "environmentUrl": "https://trial.procaaso.io",
       "devUrl": "https://dev-fprof8e08b1b07a74b6b8f05138abc7d92fb.fns-tasks.trial.procaaso.io"
+    },
+    "stage":{
+      "syndiTokenCommand": "syndi auth token -p stage",
+      "environmentUrl": "https://stage.dev.paracloud.ai",
+      "devUrl": "https://dev-fprob9a86df9b1ff465dbd45ce3d5abee634.fns-tasks.stage.dev.paracloud.ai"
     }
   },
-  "activeEnvironment": "trial"
+  "activeEnvironment": "stage"
 }
