@@ -1,0 +1,59 @@
+{
+  "name": "replace-me-package-name",
+  "version": "0.0.1",
+  "homepage": "http://replace-me-homepage.com",
+  "repository_url": "http://replace-me-repo.com",
+  "description": "replace-me-description",
+  "keywords": [
+    "pilet",
+    "fns-project"
+  ],
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^5.18.0",
+    "piral-base": "^0.14.29",
+    "piral-core": "^0.14.29"
+  },
+  "proxy": "http://localhost:8000",
+  "peerDependencies": {
+    "piral": "*",
+    "react": "*",
+    "react-dom": "*",
+    "react-router": "*",
+    "react-router-dom": "*"
+  },
+  "scripts": {
+    "start": "pilet debug --schema v1",
+    "build": "pilet build --schema v1"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "piral": {
+    "comment": "Keep this section to use the Piral CLI.",
+    "name": "@procaaso/pc-piral-instance"
+  },
+  "source": "src/index.tsx",
+  "devDependencies": {
+    "@procaaso/pc-piral-instance": "0.8.4",
+    "@procaaso/pc-piral-proto-api": "0.18.1",
+    "piral-cli": "1.4.3",
+    "piral-cli-webpack5": "1.4.3",
+    "raw-loader": "^4.0.2",
+    "typescript": "^4.5.4"
+  },
+  "peerModules": [],
+  "paracloud": {
+    "package": {
+      "name": "replace-me-paracloud-package-name",
+      "tags": {}
+    },
+    "view": {
+      "name": "replace-me-view-name",
+      "type": "FNS",
+      "description": "replace-me-paracloud-view-description"
+    }
+  }
+}

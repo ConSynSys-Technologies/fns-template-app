@@ -1,0 +1,55 @@
+name: Attach Package to Release
+on:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write # assume the AWS roles that pull the syndi image
+  contents: write # upload the package to the release
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    env:
+      SYNDI_IMAGE: 230177812114.dkr.ecr.us-west-2.amazonaws.com/pc-syndi:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.0.0
+        with:
+          role-to-assume: arn:aws:iam::263704316862:role/ExtraServicesGithubActionsRole
+          aws-region: us-west-2
+          role-session-name: fns-template-app-release
+
+      - name: Configure registry AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.0.0
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::230177812114:role/ExtraServicesRepositoryPullPusher
+          role-chaining: true
+          role-skip-session-tagging: true
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: 230177812114
+
+      - name: Package with syndi
+        run: |
+          printf 'profiles:\n  default:\n    environment: stage.dev\n' > "$RUNNER_TEMP/syndi-config"
+          mkdir -p "$RUNNER_TEMP/package"
+
+          docker pull "$SYNDI_IMAGE"
+          docker run --rm \
+            -v "$PWD:/work" \
+            -v "$RUNNER_TEMP/syndi-config:/syndi-config:ro" \
+            -v "$RUNNER_TEMP/package:/package" \
+            "$SYNDI_IMAGE" \
+            package /work -c /syndi-config --output-dir /package
+
+      - name: Upload package to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" "$RUNNER_TEMP"/package/*.tar.gz --clobber
