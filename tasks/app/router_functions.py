@@ -15,6 +15,7 @@ All dependencies should be passed in as parameters to the factory function rathe
 Example:
 def new_get_boat_handler(
     logger: Logger,
+    get_boat: Callable[[str], Boat | None],
 ):
     class BoatResponse(BaseModel):
         color: str
@@ -22,13 +23,16 @@ def new_get_boat_handler(
     class BoatRequest(BaseModel):
         name: str
 
-    @procaaso_fns_sdk.authz.auth_context("boat", "read")
+    @procaaso_fns_sdk.authz.auth_context("boats", "read")
     async def give_boat_handler(request: fastapi.Request, boat_request: BoatRequest):
         \"""
         Include a brief comment on what the function does as well as any oddities in the implementation that future maintainers should be aware of.
         \"""
-
-        return BoatResponse(color="red")
+        boat = get_boat(boat_request.name)
+        if boat is None:
+            logger.info(f"No boat found for name={boat_request.name}")
+            raise fastapi.HTTPException(status_code=404, detail="boat not found")
+        return BoatResponse(color=boat.color)
 
     return give_boat_handler
 """

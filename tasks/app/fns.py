@@ -18,8 +18,8 @@ def set_up_server(logger):
     ```
     newServer.register_endpoint(
         route="/boat",
-        func=router_functions.new_get_boat_handler(logger),
-        methods=["GET"],
+        func=router_functions.new_get_boat_handler(logger, db_functions.get_boat),
+        methods=["POST"],
     )
     ```
     """
