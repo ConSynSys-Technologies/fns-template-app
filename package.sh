@@ -17,7 +17,7 @@ increment_version() {
 
 increment_flag=false
 
-while getopts ":ia" opt; do
+while getopts ":i" opt; do
   case $opt in
     i)
         increment_flag=true
