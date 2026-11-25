@@ -48,12 +48,10 @@ def app_factory():
 
     if os.getenv("DEV_MODE"):
         environments.set_dev_config(logger)
+        db_functions.run_up_migrations()
 
     new_server = set_up_server(logger)
     fast_api = new_server.create_app()
-
-    if os.getenv("DEV_MODE"):
-        db_functions.run_up_migrations()
 
     db_functions.seed_boats()
 
